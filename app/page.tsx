@@ -68,29 +68,6 @@ const neighborhoods = [
   "Parquelândia"
 ]
 
-function SettingsItem({ icon, label, value, badge }: { 
-  icon: React.ReactNode
-  label: string
-  value?: string
-  badge?: string
-}) {
-  return (
-    <button className="flex items-center justify-between w-full py-4 border-b border-gray-50">
-      <div className="flex items-center gap-4">
-        {icon}
-        <div className="text-left">
-          <div className="flex items-center gap-2">
-            <span className="text-base text-gray-900">{label}</span>
-            {badge && <span className="text-sm text-red-500 font-medium">{badge}</span>}
-          </div>
-          {value && <div className="text-sm text-gray-500">{value}</div>}
-        </div>
-      </div>
-      <ChevronRight className="w-5 h-5 text-gray-400" />
-    </button>
-  )
-}
-
 function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
   const minPrice = vehicleType === "moto" ? 5 : 13
   const maxPrice = vehicleType === "moto" ? 20 : 45
