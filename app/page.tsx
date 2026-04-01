@@ -111,8 +111,10 @@ export default function HomePage() {
   const [rideVisible, setRideVisible] = useState(false)
   const [rideDismissing, setRideDismissing] = useState(false)
   const [scanProgress, setScanProgress] = useState(0)
+  const [rideCountdown, setRideCountdown] = useState(100)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const countdownRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load from localStorage
   useEffect(() => {
@@ -146,6 +148,7 @@ export default function HomePage() {
         const vehicleType = vehicles[0]?.type || "moto"
         const ride = generateRandomRide(vehicleType)
         setCurrentRide(ride)
+        setRideCountdown(100)
         // Trigger slide-in animation
         setTimeout(() => setRideVisible(true), 50)
       }, 8000)
@@ -167,6 +170,35 @@ export default function HomePage() {
       setRideDismissing(false)
     }, 300)
   }, [])
+
+  // Countdown timer for ride card - 10 seconds to expire
+  useEffect(() => {
+    if (currentRide && rideVisible && !rideDismissing) {
+      const startTime = Date.now()
+      const duration = 10000 // 10 seconds
+      
+      const animateCountdown = () => {
+        const elapsed = Date.now() - startTime
+        const remaining = Math.max(0, 100 - (elapsed / duration) * 100)
+        setRideCountdown(remaining)
+        
+        if (remaining > 0) {
+          countdownRef.current = setTimeout(animateCountdown, 50)
+        } else {
+          // Countdown finished, dismiss the ride
+          dismissRide()
+        }
+      }
+      
+      countdownRef.current = setTimeout(animateCountdown, 50)
+      
+      return () => {
+        if (countdownRef.current) {
+          clearTimeout(countdownRef.current)
+        }
+      }
+    }
+  }, [currentRide, rideVisible, rideDismissing, dismissRide])
 
   const handleVehicleClick = () => {
     setVehicleLoading(true)
@@ -334,29 +366,29 @@ export default function HomePage() {
           className="w-full h-full"
         />
 
-        {/* Yellow Hexagon Overlay - 7 hexagons closer together */}
+        {/* Yellow Hexagon Overlay - 7 hexagons at top of page */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <svg className="w-full h-full" viewBox="0 0 430 932" preserveAspectRatio="xMidYMid slice">
             {/* Hexagon 1 - Left top */}
-            <polygon points="30,180 90,140 150,180 150,260 90,300 30,260" fill="rgba(255,227,80,0.55)" />
+            <polygon points="30,60 90,20 150,60 150,140 90,180 30,140" fill="rgba(255,227,80,0.55)" />
             
             {/* Hexagon 2 - Center top - adjacent to 1 */}
-            <polygon points="150,180 210,140 270,180 270,260 210,300 150,260" fill="rgba(255,210,50,0.5)" />
+            <polygon points="150,60 210,20 270,60 270,140 210,180 150,140" fill="rgba(255,210,50,0.5)" />
             
             {/* Hexagon 3 - Right top - adjacent to 2 */}
-            <polygon points="270,180 330,140 390,180 390,260 330,300 270,260" fill="rgba(255,227,80,0.45)" />
+            <polygon points="270,60 330,20 390,60 390,140 330,180 270,140" fill="rgba(255,227,80,0.45)" />
             
             {/* Hexagon 4 - Left middle - below 1 */}
-            <polygon points="90,300 150,260 210,300 210,380 150,420 90,380" fill="rgba(255,200,40,0.5)" />
+            <polygon points="90,180 150,140 210,180 210,260 150,300 90,260" fill="rgba(255,200,40,0.5)" />
             
             {/* Hexagon 5 - Center - adjacent to 4 */}
-            <polygon points="210,300 270,260 330,300 330,380 270,420 210,380" fill="rgba(255,227,80,0.6)" />
+            <polygon points="210,180 270,140 330,180 330,260 270,300 210,260" fill="rgba(255,227,80,0.6)" />
             
             {/* Hexagon 6 - Left bottom - below 4 */}
-            <polygon points="30,420 90,380 150,420 150,500 90,540 30,500" fill="rgba(255,210,50,0.55)" />
+            <polygon points="30,300 90,260 150,300 150,380 90,420 30,380" fill="rgba(255,210,50,0.55)" />
             
             {/* Hexagon 7 - Center bottom - adjacent to 6 */}
-            <polygon points="150,420 210,380 270,420 270,500 210,540 150,500" fill="rgba(255,227,80,0.5)" />
+            <polygon points="150,300 210,260 270,300 270,380 210,420 150,380" fill="rgba(255,227,80,0.5)" />
           </svg>
         </div>
 
@@ -382,38 +414,35 @@ export default function HomePage() {
           } ${rideDismissing ? 'opacity-0' : ''}`}
         >
           {/* Ride Details Card */}
-          <div className="bg-[#1a1a1a] rounded-2xl p-5">
-            {/* Corrida longa label */}
-            <div className="flex justify-center mb-3">
-              <span className="bg-[#22c55e] text-white text-xs font-medium px-3 py-1 rounded-full">
-                Corrida longa
-              </span>
-            </div>
-            
+          <div className="bg-[#1a1a1a] rounded-2xl p-6">
             {/* Price */}
-            <div className="text-center mb-2">
-              <div className="text-4xl font-bold text-white">
+            <div className="text-center mb-3">
+              <div className="text-5xl font-bold text-white">
                 R${currentRide.price.toFixed(2).replace(".", ",")}
               </div>
-              <div className="text-gray-400 text-sm mt-1">
+              <div className="text-gray-400 text-sm mt-2">
                 R${currentRide.pricePerKm.toFixed(2).replace(".", ",")} por km
               </div>
             </div>
             
-            {/* Badges - x2,0 and included */}
+            {/* Badge - included */}
             <div className="flex justify-center gap-3 mb-4">
-              <span className="bg-[#15803d] text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                <span className="text-[#4ade80]">●</span>
-                x2,0
-              </span>
               <span className="bg-[#854d0e] text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
                 <span className="text-[#fbbf24]">●</span>
                 R${(currentRide.price * 0.3).toFixed(2).replace(".", ",")} incluídos
               </span>
             </div>
             
+            {/* Orange countdown bar */}
+            <div className="w-full h-1 bg-gray-700 rounded-full mb-4 overflow-hidden">
+              <div 
+                className="h-full bg-[#f97316] rounded-full transition-all duration-100 ease-linear"
+                style={{ width: `${rideCountdown}%` }}
+              />
+            </div>
+            
             {/* Rating, rides and verification */}
-            <div className="flex items-center justify-center gap-2 mb-4 text-white text-sm">
+            <div className="flex items-center justify-center gap-2 mb-5 text-white text-sm">
               <span className="flex items-center gap-1">
                 <span className="text-[#22c55e]">●</span>
                 {currentRide.rating}
@@ -432,13 +461,13 @@ export default function HomePage() {
             </div>
             
             {/* Pickup Location */}
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-3 h-3 bg-[#22c55e] rounded-full mt-1 flex-shrink-0" />
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-3 h-3 bg-[#22c55e] rounded-full mt-1.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="text-white font-semibold text-sm">
+                <div className="text-white font-semibold text-base">
                   {currentRide.pickupTime}Min ({currentRide.pickupDistance}km)
                 </div>
-                <div className="text-gray-400 text-xs leading-relaxed">
+                <div className="text-gray-400 text-sm leading-relaxed mt-1">
                   {currentRide.pickupAddress}
                 </div>
               </div>
@@ -446,15 +475,12 @@ export default function HomePage() {
             
             {/* Dropoff Location */}
             <div className="flex items-start gap-3">
-              <div className="w-3 h-3 bg-[#ef4444] rounded-full mt-1 flex-shrink-0" />
+              <div className="w-3 h-3 bg-[#ef4444] rounded-full mt-1.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="text-white font-semibold text-sm flex items-center gap-2 flex-wrap">
-                  <span>{currentRide.dropoffTime}Min ({currentRide.dropoffDistance}km)</span>
-                  <span className="bg-[#ef4444] text-white text-[10px] px-2 py-0.5 rounded">
-                    Área de risco
-                  </span>
+                <div className="text-white font-semibold text-base">
+                  {currentRide.dropoffTime}Min ({currentRide.dropoffDistance}km)
                 </div>
-                <div className="text-gray-400 text-xs leading-relaxed">
+                <div className="text-gray-400 text-sm leading-relaxed mt-1">
                   {currentRide.dropoffAddress}
                 </div>
               </div>
