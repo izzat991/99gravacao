@@ -1,14 +1,68 @@
 "use client"
 
-import { useState } from "react"
-import { X, ChevronLeft, ChevronRight, Star, Check } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { X, ChevronLeft, ChevronRight, Star, Check, Camera } from "lucide-react"
 import Image from "next/image"
+
+interface Vehicle {
+  id: string
+  type: "moto" | "carro"
+  placa: string
+  nome: string
+  cor: string
+}
+
+interface UserProfile {
+  name: string
+  photo: string
+}
 
 export default function HomePage() {
   const [showBanner, setShowBanner] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [vehicleOpen, setVehicleOpen] = useState(false)
   const [vehicleLoading, setVehicleLoading] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [addVehicleOpen, setAddVehicleOpen] = useState(false)
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [profile, setProfile] = useState<UserProfile>({
+    name: "Yuri",
+    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+  })
+  const [newVehicle, setNewVehicle] = useState({
+    type: "moto" as "moto" | "carro",
+    placa: "",
+    nome: "",
+    cor: ""
+  })
+  const [editName, setEditName] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Load from localStorage
+  useEffect(() => {
+    const savedVehicles = localStorage.getItem("vehicles")
+    const savedProfile = localStorage.getItem("profile")
+    
+    if (savedVehicles) {
+      setVehicles(JSON.parse(savedVehicles))
+    } else {
+      // Default vehicle
+      const defaultVehicle: Vehicle = {
+        id: "1",
+        type: "moto",
+        placa: "RJO6E35",
+        nome: "HONDA/CB 250 TWISTER",
+        cor: "AZUL"
+      }
+      setVehicles([defaultVehicle])
+      localStorage.setItem("vehicles", JSON.stringify([defaultVehicle]))
+    }
+    
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile))
+    }
+  }, [])
 
   const handleVehicleClick = () => {
     setVehicleLoading(true)
@@ -18,6 +72,64 @@ export default function HomePage() {
       setMenuOpen(false)
     }, 800)
   }
+
+  const handleProfileClick = () => {
+    setProfileLoading(true)
+    setEditName(profile.name)
+    setTimeout(() => {
+      setProfileLoading(false)
+      setProfileOpen(true)
+      setMenuOpen(false)
+    }, 800)
+  }
+
+  const removeVehicle = (id: string) => {
+    const updated = vehicles.filter(v => v.id !== id)
+    setVehicles(updated)
+    localStorage.setItem("vehicles", JSON.stringify(updated))
+  }
+
+  const addVehicle = () => {
+    if (!newVehicle.placa || !newVehicle.nome || !newVehicle.cor) return
+    
+    const vehicle: Vehicle = {
+      id: Date.now().toString(),
+      type: newVehicle.type,
+      placa: newVehicle.placa.toUpperCase(),
+      nome: newVehicle.nome.toUpperCase(),
+      cor: newVehicle.cor.toUpperCase()
+    }
+    
+    const updated = [...vehicles, vehicle]
+    setVehicles(updated)
+    localStorage.setItem("vehicles", JSON.stringify(updated))
+    setNewVehicle({ type: "moto", placa: "", nome: "", cor: "" })
+    setAddVehicleOpen(false)
+  }
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const newProfile = { ...profile, photo: reader.result as string }
+        setProfile(newProfile)
+        localStorage.setItem("profile", JSON.stringify(newProfile))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const saveProfile = () => {
+    const newProfile = { ...profile, name: editName }
+    setProfile(newProfile)
+    localStorage.setItem("profile", JSON.stringify(newProfile))
+    setProfileOpen(false)
+  }
+
+  // Get active vehicle type for menu display
+  const activeVehicle = vehicles[0]
+  const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : "Rota 99 Moto"
 
   return (
     <div className="relative h-screen w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8]">
@@ -146,25 +258,25 @@ export default function HomePage() {
             {/* Profile Photo */}
             <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden mb-3">
               <Image
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                src={profile.photo}
                 alt="Profile"
                 width={80}
                 height={80}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center"
               />
             </div>
             
             {/* Name and Rating */}
             <div className="flex items-center gap-1.5 text-lg font-bold text-black">
-              <span>Yuri</span>
+              <span>{profile.name}</span>
               <span>•</span>
               <span>5,00</span>
               <Star className="w-4 h-4 fill-black text-black" />
             </div>
 
-            {/* Rota 99 Moto Button */}
+            {/* Rota 99 Button */}
             <button className="mt-4 flex items-center gap-1 bg-[#292444] text-white px-5 py-2.5 rounded-full text-sm font-medium">
-              Rota 99 Moto
+              {routeLabel}
               <ChevronRight className="w-4 h-4" />
             </button>
 
@@ -191,7 +303,7 @@ export default function HomePage() {
             <MenuItem label="Central de Educação" hasNotification />
             <MenuItem label="Loja 99" />
             <MenuItem label="Veículos" onClick={handleVehicleClick} loading={vehicleLoading} />
-            <MenuItem label="Horas Dirigidas" />
+            <MenuItem label="Horas Dirigidas" onClick={handleProfileClick} loading={profileLoading} />
           </div>
         </div>
       </div>
@@ -207,46 +319,200 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Vehicle Card */}
-          <div className="px-4 py-4">
-            <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-xs font-medium text-gray-600 border border-gray-300 px-2 py-1 rounded">MOTO</span>
-                <span className="text-green-500 font-medium text-sm">Aprovado</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-800 tracking-wider">RJO6E35</div>
-                  <div className="text-xs text-gray-500 mt-1">HONDA/CB 250 TWISTER (AZUL)</div>
+          {/* Vehicle Cards */}
+          <div className="px-4 py-4 flex-1 overflow-y-auto">
+            {vehicles.map((vehicle) => (
+              <div key={vehicle.id} className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-600 border border-gray-300 px-2 py-1 rounded">
+                    {vehicle.type.toUpperCase()}
+                  </span>
+                  <span className="text-green-500 font-medium text-sm">Aprovado</span>
                 </div>
-                <div className="w-20 h-16">
-                  <Image
-                    src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=150&h=100&fit=crop"
-                    alt="Moto"
-                    width={80}
-                    height={64}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              </div>
+                
+                <button 
+                  onClick={() => removeVehicle(vehicle.id)}
+                  className="w-full"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-left">
+                      <div className="text-2xl font-bold text-gray-800 tracking-wider">{vehicle.placa}</div>
+                      <div className="text-xs text-gray-500 mt-1">{vehicle.nome} ({vehicle.cor})</div>
+                    </div>
+                    <div className="w-20 h-16">
+                      <Image
+                        src={vehicle.type === "moto" ? "/images/icon-moto.png" : "/images/icon-car.png"}
+                        alt={vehicle.type === "moto" ? "Moto" : "Carro"}
+                        width={80}
+                        height={64}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  </div>
+                </button>
 
-              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="text-sm text-gray-700">Veículo ativo</span>
+                  </div>
+                  <button 
+                    onClick={() => removeVehicle(vehicle.id)}
+                    className="text-red-500 text-sm font-medium"
+                  >
+                    Remover
+                  </button>
                 </div>
-                <span className="text-sm text-gray-700">Veículo ativo</span>
               </div>
-            </div>
+            ))}
           </div>
-
-          {/* Spacer */}
-          <div className="flex-1" />
 
           {/* Add Button */}
           <div className="px-4 py-6">
-            <button className="w-full bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-lg py-4 rounded-full transition-colors">
+            <button 
+              onClick={() => setAddVehicleOpen(true)}
+              className="w-full bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-lg py-4 rounded-full transition-colors"
+            >
               Adicionar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Add Vehicle Modal */}
+      {addVehicleOpen && (
+        <div className="absolute inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-[360px]">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Adicionar Veículo</h2>
+            
+            {/* Type Selection */}
+            <div className="flex gap-3 mb-4">
+              <button
+                onClick={() => setNewVehicle({ ...newVehicle, type: "moto" })}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
+                  newVehicle.type === "moto" 
+                    ? "bg-[#292444] text-white" 
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                Moto
+              </button>
+              <button
+                onClick={() => setNewVehicle({ ...newVehicle, type: "carro" })}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
+                  newVehicle.type === "carro" 
+                    ? "bg-[#292444] text-white" 
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                Carro
+              </button>
+            </div>
+
+            {/* Form Fields */}
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="Placa (ex: ABC1234)"
+                value={newVehicle.placa}
+                onChange={(e) => setNewVehicle({ ...newVehicle, placa: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400"
+              />
+              <input
+                type="text"
+                placeholder="Modelo (ex: Honda CB 250)"
+                value={newVehicle.nome}
+                onChange={(e) => setNewVehicle({ ...newVehicle, nome: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400"
+              />
+              <input
+                type="text"
+                placeholder="Cor (ex: Azul)"
+                value={newVehicle.cor}
+                onChange={(e) => setNewVehicle({ ...newVehicle, cor: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setAddVehicleOpen(false)}
+                className="flex-1 py-3 rounded-full border border-gray-300 text-gray-600 font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={addVehicle}
+                className="flex-1 py-3 rounded-full bg-[#ffe323] text-[#1a1a1a] font-bold"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Edit Page (Horas Dirigidas) */}
+      <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center px-4 py-4 bg-white">
+            <button onClick={() => setProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
+              <ChevronLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Horas Dirigidas</span>
+            </button>
+          </div>
+
+          {/* Profile Edit */}
+          <div className="flex-1 flex flex-col items-center justify-center px-6">
+            {/* Photo */}
+            <div className="relative mb-6">
+              <div className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden">
+                <Image
+                  src={profile.photo}
+                  alt="Profile"
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-0 right-0 w-10 h-10 bg-[#292444] rounded-full flex items-center justify-center"
+              >
+                <Camera className="w-5 h-5 text-white" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+            </div>
+
+            {/* Name Input */}
+            <div className="w-full max-w-[300px]">
+              <label className="block text-sm font-medium text-gray-600 mb-2">Nome</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 text-center text-lg font-medium"
+              />
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <div className="px-4 py-6">
+            <button 
+              onClick={saveProfile}
+              className="w-full bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-lg py-4 rounded-full transition-colors"
+            >
+              Salvar
             </button>
           </div>
         </div>
@@ -259,9 +525,9 @@ function MenuItem({ label, hasNotification, onClick, loading }: { label: string;
   return (
     <button 
       onClick={onClick}
-      className="w-full flex items-center justify-between py-3.5 text-left"
+      className="w-full flex items-center justify-between py-4 text-left"
     >
-      <span className="text-[17px] text-black font-medium flex items-center gap-2">
+      <span className="text-[18px] text-black font-semibold flex items-center gap-2">
         {label}
         {hasNotification && <div className="w-2 h-2 bg-red-500 rounded-full" />}
       </span>
