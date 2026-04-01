@@ -93,6 +93,7 @@ function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
 
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true)
+  const [splashFading, setSplashFading] = useState(false)
   const [showBanner, setShowBanner] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [vehicleOpen, setVehicleOpen] = useState(false)
@@ -124,22 +125,45 @@ export default function HomePage() {
   const countdownRef = useRef<NodeJS.Timeout | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Splash screen timer
+  // Splash screen timer with fadeout
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const fadeTimer = setTimeout(() => {
+      setSplashFading(true)
+    }, 2000)
+    const hideTimer = setTimeout(() => {
       setShowSplash(false)
     }, 2500)
-    return () => clearTimeout(timer)
+    return () => {
+      clearTimeout(fadeTimer)
+      clearTimeout(hideTimer)
+    }
   }, [])
 
   // Unlock audio on first user interaction (required for iOS)
+  // Uses muted audio to unlock without playing audible sound
   useEffect(() => {
+    let audioUnlocked = false
+    
     const unlockAudio = () => {
-      if (audioRef.current) {
-        audioRef.current.play().then(() => {
-          audioRef.current?.pause()
-          audioRef.current!.currentTime = 0
-        }).catch(() => {})
+      if (audioRef.current && !audioUnlocked) {
+        audioUnlocked = true
+        const audio = audioRef.current
+        // Save original volume and mute
+        const originalVolume = audio.volume
+        audio.volume = 0
+        audio.muted = true
+        
+        audio.play().then(() => {
+          audio.pause()
+          audio.currentTime = 0
+          // Restore volume and unmute
+          audio.volume = originalVolume
+          audio.muted = false
+        }).catch(() => {
+          // Reset state even on error
+          audio.volume = originalVolume
+          audio.muted = false
+        })
       }
       document.removeEventListener('touchstart', unlockAudio)
       document.removeEventListener('click', unlockAudio)
@@ -389,9 +413,12 @@ export default function HomePage() {
         webkit-playsinline="true"
       />
 
-      {/* Splash Screen */}
+      {/* Splash Screen with fadeout */}
       {showSplash && (
-        <div className="absolute inset-0 z-[100] bg-[#ffe323] flex items-center justify-center">
+        <div 
+          className={`absolute inset-0 z-[100] bg-[#ffe323] flex items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}
+          style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
           <span className="text-[120px] font-black text-[#1a1a1a] tracking-tight">99</span>
         </div>
       )}
@@ -677,7 +704,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-[85%] max-w-[340px] bg-white z-40 transition-transform duration-300 ease-out ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full overflow-y-auto">
           {/* Profile Section */}
-          <div className="flex flex-col items-center pt-12 pb-6 px-6">
+          <div className="flex flex-col items-center pb-6 px-6" style={{ paddingTop: 'max(env(safe-area-inset-top), 48px)' }}>
             {/* Profile Photo */}
             <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden mb-3">
               <Image
@@ -735,7 +762,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${vehicleOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center px-4 py-4 bg-white">
+          <div className="flex items-center px-4 bg-white" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
             <button onClick={() => setVehicleOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Veículo</span>
@@ -885,7 +912,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center px-4 py-4 bg-white">
+          <div className="flex items-center px-4 bg-white" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
             <button onClick={() => setProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Horas Dirigidas</span>
@@ -948,7 +975,7 @@ export default function HomePage() {
       {connectionState === "facial-intro" && (
         <div className="absolute inset-0 bg-white z-[70] flex flex-col">
           {/* Header */}
-          <div className="flex items-center px-4 py-4 border-b border-gray-100">
+          <div className="flex items-center px-4 border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
             <button onClick={() => setConnectionState("idle")} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Reconhecimento facial</span>
@@ -998,7 +1025,7 @@ export default function HomePage() {
       {connectionState === "facial-scan" && (
         <div className="absolute inset-0 bg-white z-[70] flex flex-col">
           {/* Header */}
-          <div className="flex items-center px-4 py-4 bg-[#1a1a1a]">
+          <div className="flex items-center px-4 bg-[#1a1a1a]" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
             <button onClick={() => setConnectionState("idle")} className="flex items-center gap-2 text-white">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Reconhecimento facial</span>
