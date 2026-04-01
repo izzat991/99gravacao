@@ -193,7 +193,7 @@ export default function HomePage() {
     }
   }, [currentRide])
 
-  // Dismiss ride with fade out - MUST be defined before useEffect that uses it
+  // Dismiss ride with fade out - defined with no dependencies so it's stable
   const dismissRide = useCallback(() => {
     setRideDismissing(true)
     if (audioRef.current) {
@@ -222,7 +222,16 @@ export default function HomePage() {
           countdownRef.current = setTimeout(animateCountdown, 50)
         } else {
           // Countdown finished, dismiss the ride
-          dismissRide()
+          setRideDismissing(true)
+          if (audioRef.current) {
+            audioRef.current.pause()
+            audioRef.current.currentTime = 0
+          }
+          setTimeout(() => {
+            setCurrentRide(null)
+            setRideVisible(false)
+            setRideDismissing(false)
+          }, 300)
         }
       }
       
@@ -234,7 +243,7 @@ export default function HomePage() {
         }
       }
     }
-  }, [currentRide, rideVisible, rideDismissing, dismissRide])
+  }, [currentRide, rideVisible, rideDismissing])
 
   const handleVehicleClick = () => {
     setVehicleLoading(true)
@@ -1059,17 +1068,16 @@ function MenuItem({ label, hasNotification, onClick, loading }: {
   return (
     <button 
       onClick={onClick}
-      className="flex items-center justify-between w-full py-3.5 border-b border-gray-50"
+      className="flex items-center justify-between w-full py-4"
     >
-      <span className="text-[15px] text-gray-800">{label}</span>
+      <span className="text-lg text-gray-800">{label}</span>
       <div className="flex items-center gap-2">
         {loading && (
-          <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+          <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
         )}
         {hasNotification && (
-          <div className="w-2 h-2 bg-red-500 rounded-full" />
+          <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
         )}
-        <ChevronRight className="w-5 h-5 text-gray-400" />
       </div>
     </button>
   )
