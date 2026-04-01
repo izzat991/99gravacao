@@ -1,7 +1,5 @@
 "use client"
-
-// App 99 Motorista - Build v5 - PWA Layout Fix
-// Last updated: force rebuild
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
 import Image from "next/image"
@@ -599,9 +597,10 @@ export default function HomePage() {
       {/* Ride Request Card */}
       {currentRide && (
         <div 
-          className={`absolute bottom-0 left-0 right-0 z-20 px-4 pb-4 transition-all duration-200 ease-out ${
+          className={`absolute bottom-0 left-0 right-0 z-20 px-4 transition-all duration-200 ease-out ${
             rideVisible && !rideDismissing ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
           } ${rideDismissing ? 'opacity-0' : ''}`}
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 16px)' }}
         >
           {/* Ride Details Card */}
           <div className="bg-[#1a1a1a] rounded-2xl p-6">
@@ -681,7 +680,7 @@ export default function HomePage() {
 
       {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4 pb-2">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
           {/* Promotional Banner */}
           {showBanner && (
             <div className="mx-3 relative mb-3">
