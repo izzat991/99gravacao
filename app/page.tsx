@@ -108,10 +108,11 @@ export default function HomePage() {
   const [editName, setEditName] = useState("")
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle")
   const [currentRide, setCurrentRide] = useState<RideRequest | null>(null)
+  const [rideVisible, setRideVisible] = useState(false)
+  const [rideDismissing, setRideDismissing] = useState(false)
   const [scanProgress, setScanProgress] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const rideIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load from localStorage
   useEffect(() => {
@@ -143,7 +144,10 @@ export default function HomePage() {
     if (connectionState === "searching" && !currentRide) {
       searchTimerRef.current = setTimeout(() => {
         const vehicleType = vehicles[0]?.type || "moto"
-        setCurrentRide(generateRandomRide(vehicleType))
+        const ride = generateRandomRide(vehicleType)
+        setCurrentRide(ride)
+        // Trigger slide-in animation
+        setTimeout(() => setRideVisible(true), 50)
       }, 8000)
       
       return () => {
@@ -154,9 +158,14 @@ export default function HomePage() {
     }
   }, [connectionState, currentRide, vehicles])
 
-  // Generate new ride every 8 seconds when one is dismissed
+  // Dismiss ride with fade out
   const dismissRide = useCallback(() => {
-    setCurrentRide(null)
+    setRideDismissing(true)
+    setTimeout(() => {
+      setCurrentRide(null)
+      setRideVisible(false)
+      setRideDismissing(false)
+    }, 300)
   }, [])
 
   const handleVehicleClick = () => {
@@ -230,6 +239,7 @@ export default function HomePage() {
       setTimeout(() => {
         setConnectionState("idle")
         setCurrentRide(null)
+        setRideVisible(false)
       }, 1500)
       return
     }
@@ -244,8 +254,8 @@ export default function HomePage() {
     setConnectionState("facial-scan")
     setScanProgress(0)
     
-    // Animate the scan progress over 5 seconds
-    const duration = 5000
+    // Longer scan duration - 6 seconds
+    const duration = 6000
     const startTime = Date.now()
     
     const animateProgress = () => {
@@ -305,7 +315,7 @@ export default function HomePage() {
       {currentRide && (
         <button 
           onClick={dismissRide}
-          className="absolute top-4 right-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center"
+          className={`absolute top-4 right-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center transition-opacity duration-300 ${rideDismissing ? 'opacity-0' : 'opacity-100'}`}
         >
           <X className="w-5 h-5 text-white" />
         </button>
@@ -324,42 +334,53 @@ export default function HomePage() {
           className="w-full h-full"
         />
 
-        {/* Yellow Hexagon Overlay - Much bigger hexagons covering entire map */}
+        {/* Yellow Hexagon Overlay - Random scattered hexagons like reference */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <svg className="w-full h-full" viewBox="0 0 430 900" preserveAspectRatio="xMidYMid slice">
-            {/* Row 1 */}
-            <polygon points="0,60 60,0 140,0 200,60 140,120 60,120" fill="rgba(255,227,35,0.4)" />
-            <polygon points="200,60 260,0 340,0 400,60 340,120 260,120" fill="rgba(255,200,0,0.5)" />
+          <svg className="w-full h-full" viewBox="0 0 430 932" preserveAspectRatio="xMidYMid slice">
+            {/* Hexagon 1 - Top left area */}
+            <polygon points="45,120 95,85 145,120 145,180 95,215 45,180" fill="rgba(255,227,80,0.55)" />
             
-            {/* Row 2 */}
-            <polygon points="-100,180 -40,120 40,120 100,180 40,240 -40,240" fill="rgba(255,227,35,0.35)" />
-            <polygon points="100,180 160,120 240,120 300,180 240,240 160,240" fill="rgba(255,200,0,0.55)" />
-            <polygon points="300,180 360,120 440,120 500,180 440,240 360,240" fill="rgba(255,227,35,0.45)" />
+            {/* Hexagon 2 - Top center-right */}
+            <polygon points="180,80 230,45 280,80 280,140 230,175 180,140" fill="rgba(255,210,50,0.5)" />
             
-            {/* Row 3 */}
-            <polygon points="0,300 60,240 140,240 200,300 140,360 60,360" fill="rgba(255,200,0,0.5)" />
-            <polygon points="200,300 260,240 340,240 400,300 340,360 260,360" fill="rgba(255,227,35,0.4)" />
+            {/* Hexagon 3 - Top right edge */}
+            <polygon points="320,130 370,95 420,130 420,190 370,225 320,190" fill="rgba(255,227,80,0.45)" />
             
-            {/* Row 4 */}
-            <polygon points="-100,420 -40,360 40,360 100,420 40,480 -40,480" fill="rgba(255,200,0,0.45)" />
-            <polygon points="100,420 160,360 240,360 300,420 240,480 160,480" fill="rgba(255,227,35,0.5)" />
-            <polygon points="300,420 360,360 440,360 500,420 440,480 360,480" fill="rgba(255,200,0,0.55)" />
+            {/* Hexagon 4 - Left side middle-top */}
+            <polygon points="-20,280 30,245 80,280 80,340 30,375 -20,340" fill="rgba(255,200,40,0.5)" />
             
-            {/* Row 5 */}
-            <polygon points="0,540 60,480 140,480 200,540 140,600 60,600" fill="rgba(255,227,35,0.45)" />
-            <polygon points="200,540 260,480 340,480 400,540 340,600 260,600" fill="rgba(255,200,0,0.5)" />
+            {/* Hexagon 5 - Center area */}
+            <polygon points="130,250 180,215 230,250 230,310 180,345 130,310" fill="rgba(255,227,80,0.6)" />
             
-            {/* Row 6 */}
-            <polygon points="-100,660 -40,600 40,600 100,660 40,720 -40,720" fill="rgba(255,227,35,0.4)" />
-            <polygon points="100,660 160,600 240,600 300,660 240,720 160,720" fill="rgba(255,200,0,0.55)" />
-            <polygon points="300,660 360,600 440,600 500,660 440,720 360,720" fill="rgba(255,227,35,0.5)" />
+            {/* Hexagon 6 - Right center */}
+            <polygon points="280,220 330,185 380,220 380,280 330,315 280,280" fill="rgba(255,210,50,0.55)" />
             
-            {/* Row 7 */}
-            <polygon points="0,780 60,720 140,720 200,780 140,840 60,840" fill="rgba(255,200,0,0.5)" />
-            <polygon points="200,780 260,720 340,720 400,780 340,840 260,840" fill="rgba(255,227,35,0.45)" />
+            {/* Hexagon 7 - Left middle */}
+            <polygon points="60,400 110,365 160,400 160,460 110,495 60,460" fill="rgba(255,227,80,0.5)" />
             
-            {/* Row 8 */}
-            <polygon points="100,900 160,840 240,840 300,900 240,960 160,960" fill="rgba(255,227,35,0.4)" />
+            {/* Hexagon 8 - Center-left */}
+            <polygon points="200,380 250,345 300,380 300,440 250,475 200,440" fill="rgba(255,200,40,0.55)" />
+            
+            {/* Hexagon 9 - Right side */}
+            <polygon points="340,350 390,315 440,350 440,410 390,445 340,410" fill="rgba(255,227,80,0.45)" />
+            
+            {/* Hexagon 10 - Lower left */}
+            <polygon points="10,530 60,495 110,530 110,590 60,625 10,590" fill="rgba(255,210,50,0.5)" />
+            
+            {/* Hexagon 11 - Lower center */}
+            <polygon points="150,500 200,465 250,500 250,560 200,595 150,560" fill="rgba(255,227,80,0.55)" />
+            
+            {/* Hexagon 12 - Lower right */}
+            <polygon points="300,480 350,445 400,480 400,540 350,575 300,540" fill="rgba(255,200,40,0.5)" />
+            
+            {/* Hexagon 13 - Bottom left */}
+            <polygon points="80,650 130,615 180,650 180,710 130,745 80,710" fill="rgba(255,227,80,0.5)" />
+            
+            {/* Hexagon 14 - Bottom center */}
+            <polygon points="240,620 290,585 340,620 340,680 290,715 240,680" fill="rgba(255,210,50,0.55)" />
+            
+            {/* Hexagon 15 - Bottom right edge */}
+            <polygon points="360,600 410,565 460,600 460,660 410,695 360,660" fill="rgba(255,227,80,0.45)" />
           </svg>
         </div>
 
@@ -379,40 +400,46 @@ export default function HomePage() {
 
       {/* Ride Request Card */}
       {currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20">
+        <div 
+          className={`absolute bottom-0 left-0 right-0 z-20 px-3 pb-3 transition-all duration-200 ease-out ${
+            rideVisible && !rideDismissing ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
+          } ${rideDismissing ? 'opacity-0' : ''}`}
+        >
           {/* Accept Button */}
-          <div className="px-4 mb-3">
-            <button className="w-full bg-[#ffe323] text-[#1a1a1a] font-bold text-lg py-3 rounded-lg border-2 border-[#1a1a1a]">
+          <div className="mb-2">
+            <button className="w-full bg-[#ffe323] text-[#1a1a1a] font-semibold text-sm py-2.5 rounded-lg border border-[#1a1a1a]">
               Toque para aceitar a corrida
             </button>
           </div>
           
           {/* Ride Details Card */}
-          <div className="bg-[#1a1a1a] rounded-t-3xl p-5">
+          <div className="bg-[#1a1a1a] rounded-2xl p-4">
             {/* Price */}
-            <div className="text-center mb-4">
-              <div className="text-4xl font-bold text-white">
+            <div className="text-center mb-3">
+              <div className="text-3xl font-bold text-white">
                 R${currentRide.price.toFixed(2).replace(".", ",")}
               </div>
-              <div className="text-gray-400 text-sm">
+              <div className="text-gray-400 text-xs">
                 R${currentRide.pricePerKm.toFixed(2).replace(".", ",")}/km
               </div>
             </div>
             
             {/* Badges */}
-            <div className="flex justify-center gap-3 mb-4">
+            <div className="flex justify-center gap-2 mb-3">
               {currentRide.included > 0 && (
-                <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full">
+                <span className="bg-green-600 text-white text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <span className="text-green-300">●</span>
                   R${currentRide.included.toFixed(2).replace(".", ",")} incluídos
                 </span>
               )}
-              <span className="bg-[#d4a017] text-white text-xs px-3 py-1 rounded-full">
+              <span className="bg-[#d4a017] text-white text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1">
+                <span className="text-yellow-300">●</span>
                 R${currentRide.bonus.toFixed(2).replace(".", ",")}
               </span>
             </div>
             
             {/* Rating and Profile */}
-            <div className="flex items-center justify-center gap-2 mb-4 text-white text-sm">
+            <div className="flex items-center justify-center gap-1.5 mb-3 text-white text-xs">
               <span className="flex items-center gap-1">
                 <span className="text-green-500">●</span>
                 {currentRide.rating}
@@ -421,31 +448,31 @@ export default function HomePage() {
               <span>{currentRide.totalRides} corridas</span>
               <span>·</span>
               <span className="flex items-center gap-1">
-                <span className="bg-blue-500 text-xs px-2 py-0.5 rounded">{currentRide.profile}</span>
+                <span className="bg-blue-500 text-[10px] px-1.5 py-0.5 rounded">{currentRide.profile}</span>
               </span>
             </div>
             
             {/* Pickup Location */}
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5" />
+            <div className="flex items-start gap-2.5 mb-2">
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full mt-1" />
               <div className="flex-1">
-                <div className="text-white font-medium">
+                <div className="text-white font-medium text-sm">
                   {currentRide.pickupTime}min ({currentRide.pickupDistance}km)
                 </div>
-                <div className="text-gray-400 text-sm truncate">
+                <div className="text-gray-400 text-xs truncate">
                   {currentRide.pickupAddress}
                 </div>
               </div>
             </div>
             
             {/* Dropoff Location */}
-            <div className="flex items-start gap-3">
-              <div className="w-3 h-3 bg-red-500 rounded-full mt-1.5" />
+            <div className="flex items-start gap-2.5">
+              <div className="w-2.5 h-2.5 bg-red-500 rounded-full mt-1" />
               <div className="flex-1">
-                <div className="text-white font-medium">
+                <div className="text-white font-medium text-sm">
                   {currentRide.dropoffTime}min ({currentRide.dropoffDistance}km)
                 </div>
-                <div className="text-gray-400 text-sm truncate">
+                <div className="text-gray-400 text-xs truncate">
                   {currentRide.dropoffAddress}
                 </div>
               </div>
@@ -481,7 +508,7 @@ export default function HomePage() {
           )}
 
           {/* Bottom Navigation Bar */}
-          <div className="px-4 py-2 flex items-center justify-center gap-2">
+          <div className="px-4 py-2 flex items-center justify-center gap-1">
             {/* Settings Icon */}
             <button className="w-10 h-10 flex items-center justify-center">
               <Image
@@ -639,8 +666,7 @@ export default function HomePage() {
                         alt={vehicle.type === "moto" ? "Moto" : "Carro"}
                         width={96}
                         height={80}
-                        style={{ width: "auto", height: "100%" }}
-                        className="object-contain"
+                        className="w-auto h-full object-contain"
                       />
                     </div>
                   </div>
@@ -828,31 +854,15 @@ export default function HomePage() {
 
           {/* Content */}
           <div className="flex-1 flex flex-col items-center justify-center px-6">
-            {/* Illustration */}
-            <div className="w-64 h-64 mb-8">
-              <svg viewBox="0 0 200 200" className="w-full h-full">
-                {/* Person with phone */}
-                <ellipse cx="100" cy="180" rx="60" ry="10" fill="#f5f5f5" />
-                {/* Body */}
-                <path d="M70 140 Q70 100 100 90 Q130 100 130 140 L130 170 L70 170 Z" fill="#f59e0b" />
-                {/* Head */}
-                <circle cx="100" cy="65" r="30" fill="#fbbf24" />
-                {/* Hair */}
-                <path d="M75 55 Q75 35 100 35 Q125 35 125 55 Q125 45 100 45 Q75 45 75 55" fill="#1a1a1a" />
-                {/* Face */}
-                <circle cx="90" cy="65" r="3" fill="#1a1a1a" />
-                <circle cx="110" cy="65" r="3" fill="#1a1a1a" />
-                <path d="M95 75 Q100 80 105 75" stroke="#1a1a1a" strokeWidth="2" fill="none" />
-                {/* Arm holding phone */}
-                <path d="M130 120 L160 90" stroke="#fbbf24" strokeWidth="12" strokeLinecap="round" />
-                {/* Phone */}
-                <rect x="150" y="70" width="25" height="40" rx="3" fill="#374151" />
-                <rect x="153" y="75" width="19" height="30" rx="1" fill="#60a5fa" />
-                {/* Car icon */}
-                <rect x="50" y="155" width="30" height="15" rx="3" fill="#ef4444" />
-                <circle cx="58" cy="170" r="4" fill="#1a1a1a" />
-                <circle cx="72" cy="170" r="4" fill="#1a1a1a" />
-              </svg>
+            {/* Illustration - Using the new image */}
+            <div className="w-72 h-72 mb-8">
+              <Image
+                src="/images/verify-illustration.png"
+                alt="Verificação facial"
+                width={288}
+                height={288}
+                className="w-full h-full object-contain"
+              />
             </div>
 
             {/* Title */}
@@ -894,62 +904,53 @@ export default function HomePage() {
 
           {/* Content */}
           <div className="flex-1 flex flex-col items-center justify-center px-6 bg-white">
-            {/* Circular Face Frame with rotating animation */}
-            <div className="relative w-72 h-72 mb-8">
-              {/* Rotating outer ring */}
-              <svg className="absolute inset-0 w-full h-full animate-spin-slow" viewBox="0 0 288 288">
+            {/* Simple circular face frame with loading ring */}
+            <div className="relative w-64 h-64 mb-8">
+              {/* Progress ring (loading circle) */}
+              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 256 256">
+                {/* Background circle */}
                 <circle
-                  cx="144"
-                  cy="144"
-                  r="140"
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="4"
-                  strokeDasharray="60 30"
-                  strokeLinecap="round"
-                />
-              </svg>
-              
-              {/* Progress ring */}
-              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 288 288">
-                <circle
-                  cx="144"
-                  cy="144"
-                  r="130"
+                  cx="128"
+                  cy="128"
+                  r="120"
                   fill="none"
                   stroke="#e5e7eb"
                   strokeWidth="6"
                 />
+                {/* Progress circle */}
                 <circle
-                  cx="144"
-                  cy="144"
-                  r="130"
+                  cx="128"
+                  cy="128"
+                  r="120"
                   fill="none"
                   stroke="#3b82f6"
                   strokeWidth="6"
-                  strokeDasharray={`${2 * Math.PI * 130}`}
-                  strokeDashoffset={`${2 * Math.PI * 130 * (1 - scanProgress / 100)}`}
+                  strokeDasharray={`${2 * Math.PI * 120}`}
+                  strokeDashoffset={`${2 * Math.PI * 120 * (1 - scanProgress / 100)}`}
                   strokeLinecap="round"
                   className="transition-all duration-100"
                 />
               </svg>
               
               {/* Inner circle with face */}
-              <div className="absolute inset-6 rounded-full overflow-hidden border-4 border-[#93c5fd]">
+              <div className="absolute inset-4 rounded-full overflow-hidden border-4 border-[#93c5fd]">
                 <Image
                   src={profile.photo}
                   alt="Face"
-                  width={256}
-                  height={256}
+                  width={224}
+                  height={224}
                   className="w-full h-full object-cover"
                 />
+                
+                {/* Scanning line descending */}
+                <div 
+                  className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent"
+                  style={{ 
+                    top: `${(scanProgress / 100) * 100}%`,
+                    boxShadow: '0 0 10px 2px rgba(59, 130, 246, 0.5)'
+                  }}
+                />
               </div>
-              
-              {/* Scanning line effect */}
-              <div 
-                className="absolute left-6 right-6 h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent animate-scan-line"
-                style={{ top: `${6 + (scanProgress / 100) * 80}%` }}
-              />
             </div>
 
             {/* Instructions */}
@@ -989,46 +990,32 @@ export default function HomePage() {
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
         }
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-        @keyframes scan-line {
-          0%, 100% {
-            opacity: 0;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
-        .animate-scan-line {
-          animation: scan-line 1s ease-in-out infinite;
-        }
       `}</style>
     </div>
   )
 }
 
-function MenuItem({ label, hasNotification, onClick, loading }: { label: string; hasNotification?: boolean; onClick?: () => void; loading?: boolean }) {
+function MenuItem({ label, hasNotification, onClick, loading }: { 
+  label: string
+  hasNotification?: boolean
+  onClick?: () => void
+  loading?: boolean
+}) {
   return (
     <button 
       onClick={onClick}
-      className="w-full flex items-center justify-between py-4 text-left"
+      className="flex items-center justify-between w-full py-3.5 border-b border-gray-50"
     >
-      <span className="text-[18px] text-black font-semibold flex items-center gap-2">
-        {label}
-        {hasNotification && <div className="w-2 h-2 bg-red-500 rounded-full" />}
-      </span>
-      {loading && (
-        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-      )}
+      <span className="text-[15px] text-gray-800">{label}</span>
+      <div className="flex items-center gap-2">
+        {loading && (
+          <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+        )}
+        {hasNotification && (
+          <div className="w-2 h-2 bg-red-500 rounded-full" />
+        )}
+        <ChevronRight className="w-5 h-5 text-gray-400" />
+      </div>
     </button>
   )
 }
