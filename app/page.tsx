@@ -1,6 +1,6 @@
 "use client"
 
-// Profile edit with phone number - v2
+// Profile edit with phone number - v3
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
 import Image from "next/image"
@@ -69,17 +69,21 @@ const neighborhoods = [
   "Parquelândia"
 ]
 
-function SettingsItem({ icon, label, value }: { 
+function SettingsItem({ icon, label, value, badge }: { 
   icon: React.ReactNode
   label: string
   value?: string
+  badge?: string
 }) {
   return (
     <button className="flex items-center justify-between w-full py-4 border-b border-gray-50">
       <div className="flex items-center gap-4">
         {icon}
         <div className="text-left">
-          <span className="text-base text-gray-900">{label}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-base text-gray-900">{label}</span>
+            {badge && <span className="text-sm text-red-500 font-medium">{badge}</span>}
+          </div>
           {value && <div className="text-sm text-gray-500">{value}</div>}
         </div>
       </div>
@@ -1117,6 +1121,7 @@ export default function HomePage() {
               icon={<Phone className="w-5 h-5 text-gray-600" />}
               label="Número de telefone"
               value={profile.phoneNumber}
+              badge="(Confirmar Numero)"
             />
             
             <SettingsItem 
@@ -1268,12 +1273,6 @@ export default function HomePage() {
                     <span className="text-sm text-gray-500">Testando</span>
                   </>
                 )}
-              </div>
-              {/* Toggle switch decoration */}
-              <div className="absolute -right-2 top-1/2 -translate-y-1/2">
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <div className="w-6 h-6 bg-white rounded-full shadow" />
-                </div>
               </div>
             </div>
 
