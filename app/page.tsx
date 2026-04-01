@@ -1,6 +1,6 @@
 "use client"
 
-// Profile edit with phone number - v3
+// App 99 Motorista - v4
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
 import Image from "next/image"
@@ -471,7 +471,7 @@ export default function HomePage() {
   const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : "Rota 99 Moto"
 
   return (
-    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8]" style={{ height: '100dvh' }}>
+    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] h-full" style={{ minHeight: '100dvh', height: '100%' }}>
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
         ref={audioRef} 
