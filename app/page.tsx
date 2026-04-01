@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2 } from "lucide-react"
 import Image from "next/image"
 
@@ -17,7 +17,73 @@ interface UserProfile {
   photo: string
 }
 
+interface RideRequest {
+  id: string
+  price: number
+  pricePerKm: number
+  included: number
+  bonus: number
+  rating: number
+  totalRides: number
+  profile: string
+  pickupTime: number
+  pickupDistance: number
+  pickupAddress: string
+  dropoffTime: number
+  dropoffDistance: number
+  dropoffAddress: string
+}
+
 type ConnectionState = "idle" | "loading" | "facial-intro" | "facial-scan" | "searching"
+
+// Random street names for generating fake addresses
+const streetNames = [
+  "R. Julien Fauvel",
+  "R. São Sebastião",
+  "Av. Brasil",
+  "R. das Flores",
+  "Av. Paulista",
+  "R. Augusta",
+  "R. Oscar Freire",
+  "Av. Rebouças",
+  "R. Consolação",
+  "R. Haddock Lobo"
+]
+
+const neighborhoods = [
+  "Nucleo Res Silvio Vilari",
+  "Parque Santa Monica",
+  "Centro",
+  "Jardins",
+  "Vila Mariana",
+  "Pinheiros",
+  "Moema",
+  "Itaim Bibi"
+]
+
+function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
+  const minPrice = vehicleType === "moto" ? 5 : 13
+  const maxPrice = vehicleType === "moto" ? 20 : 45
+  const price = Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice
+  const pricePerKm = (Math.random() * 1.5 + 1).toFixed(2)
+  
+  return {
+    id: Date.now().toString(),
+    price: price,
+    pricePerKm: parseFloat(pricePerKm),
+    included: Math.random() > 0.5 ? parseFloat((Math.random() * 0.5).toFixed(2)) : 0,
+    bonus: parseFloat((Math.random() * 5).toFixed(2)),
+    rating: parseFloat((4.5 + Math.random() * 0.5).toFixed(2)),
+    totalRides: Math.floor(Math.random() * 200) + 10,
+    profile: "Perfil Essencial",
+    pickupTime: Math.floor(Math.random() * 10) + 3,
+    pickupDistance: parseFloat((Math.random() * 3 + 0.5).toFixed(1)),
+    pickupAddress: `${streetNames[Math.floor(Math.random() * streetNames.length)]} ${Math.floor(Math.random() * 500) + 100}, ${neighborhoods[Math.floor(Math.random() * neighborhoods.length)]}`,
+    dropoffTime: Math.floor(Math.random() * 15) + 5,
+    dropoffDistance: parseFloat((Math.random() * 5 + 1).toFixed(1)),
+    dropoffAddress: `${streetNames[Math.floor(Math.random() * streetNames.length)]} ${Math.floor(Math.random() * 3000) + 100}, ${neighborhoods[Math.floor(Math.random() * neighborhoods.length)]}`
+  }
+}
 
 export default function HomePage() {
   const [showBanner, setShowBanner] = useState(true)
@@ -41,7 +107,11 @@ export default function HomePage() {
   })
   const [editName, setEditName] = useState("")
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle")
+  const [currentRide, setCurrentRide] = useState<RideRequest | null>(null)
+  const [scanProgress, setScanProgress] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const rideIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load from localStorage
   useEffect(() => {
@@ -66,6 +136,27 @@ export default function HomePage() {
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile))
     }
+  }, [])
+
+  // Handle search timer for generating rides
+  useEffect(() => {
+    if (connectionState === "searching" && !currentRide) {
+      searchTimerRef.current = setTimeout(() => {
+        const vehicleType = vehicles[0]?.type || "moto"
+        setCurrentRide(generateRandomRide(vehicleType))
+      }, 8000)
+      
+      return () => {
+        if (searchTimerRef.current) {
+          clearTimeout(searchTimerRef.current)
+        }
+      }
+    }
+  }, [connectionState, currentRide, vehicles])
+
+  // Generate new ride every 8 seconds when one is dismissed
+  const dismissRide = useCallback(() => {
+    setCurrentRide(null)
   }, [])
 
   const handleVehicleClick = () => {
@@ -133,7 +224,15 @@ export default function HomePage() {
   }
 
   const handleConnect = () => {
-    if (connectionState === "searching") return
+    if (connectionState === "searching") {
+      // If already searching, go back to idle
+      setConnectionState("loading")
+      setTimeout(() => {
+        setConnectionState("idle")
+        setCurrentRide(null)
+      }, 1500)
+      return
+    }
     
     setConnectionState("loading")
     setTimeout(() => {
@@ -143,9 +242,27 @@ export default function HomePage() {
 
   const handleVerifyNow = () => {
     setConnectionState("facial-scan")
-    setTimeout(() => {
-      setConnectionState("searching")
-    }, 3000)
+    setScanProgress(0)
+    
+    // Animate the scan progress over 5 seconds
+    const duration = 5000
+    const startTime = Date.now()
+    
+    const animateProgress = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min((elapsed / duration) * 100, 100)
+      setScanProgress(progress)
+      
+      if (progress < 100) {
+        requestAnimationFrame(animateProgress)
+      } else {
+        setTimeout(() => {
+          setConnectionState("searching")
+        }, 500)
+      }
+    }
+    
+    requestAnimationFrame(animateProgress)
   }
 
   // Get active vehicle type for menu display
@@ -154,33 +271,45 @@ export default function HomePage() {
 
   return (
     <div className="relative h-screen w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8]">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4 pt-3">
-        {/* Menu Button - Top Left */}
-        <button 
-          onClick={() => setMenuOpen(true)}
-          className="absolute left-4 top-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
-        >
-          {/* Red dot indicator - Right side */}
-          <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
-          {/* Menu Icon */}
-          <Image
-            src="/images/icon-menu.png"
-            alt="Menu"
-            width={20}
-            height={20}
-            className="w-5 h-5"
-          />
-        </button>
+      {/* Header - Hide when ride is showing */}
+      {!currentRide && (
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4 pt-3">
+          {/* Menu Button - Top Left */}
+          <button 
+            onClick={() => setMenuOpen(true)}
+            className="absolute left-4 top-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
+          >
+            {/* Red dot indicator - Right side */}
+            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
+            {/* Menu Icon */}
+            <Image
+              src="/images/icon-menu.png"
+              alt="Menu"
+              width={20}
+              height={20}
+              className="w-5 h-5"
+            />
+          </button>
 
-        {/* Balance - Centered */}
-        <button className="flex items-center gap-1.5 bg-[#292444] text-white px-6 py-3 rounded-full text-[17px] font-medium">
-          R$0,00
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+          {/* Balance - Centered */}
+          <button className="flex items-center gap-1.5 bg-[#292444] text-white px-6 py-3 rounded-full text-[17px] font-medium">
+            R$0,00
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Close button when ride is showing */}
+      {currentRide && (
+        <button 
+          onClick={dismissRide}
+          className="absolute top-4 right-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center"
+        >
+          <X className="w-5 h-5 text-white" />
         </button>
-      </div>
+      )}
 
       {/* Map Container */}
       <div className="absolute inset-0">
@@ -195,37 +324,42 @@ export default function HomePage() {
           className="w-full h-full"
         />
 
-        {/* Yellow Hexagon Overlay */}
+        {/* Yellow Hexagon Overlay - Much bigger hexagons covering entire map */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <svg className="w-full h-full" viewBox="0 0 430 800" preserveAspectRatio="xMidYMid slice">
-            {/* Light yellow hexagons */}
-            <polygon points="100,150 130,135 160,150 160,180 130,195 100,180" fill="rgba(255,227,35,0.35)" />
-            <polygon points="160,180 190,165 220,180 220,210 190,225 160,210" fill="rgba(255,227,35,0.4)" />
-            <polygon points="220,150 250,135 280,150 280,180 250,195 220,180" fill="rgba(255,227,35,0.3)" />
-            <polygon points="50,250 80,235 110,250 110,280 80,295 50,280" fill="rgba(255,227,35,0.45)" />
-            <polygon points="110,280 140,265 170,280 170,310 140,325 110,310" fill="rgba(255,227,35,0.5)" />
-            <polygon points="170,250 200,235 230,250 230,280 200,295 170,280" fill="rgba(255,227,35,0.35)" />
+          <svg className="w-full h-full" viewBox="0 0 430 900" preserveAspectRatio="xMidYMid slice">
+            {/* Row 1 */}
+            <polygon points="0,60 60,0 140,0 200,60 140,120 60,120" fill="rgba(255,227,35,0.4)" />
+            <polygon points="200,60 260,0 340,0 400,60 340,120 260,120" fill="rgba(255,200,0,0.5)" />
             
-            {/* Darker yellow hexagons */}
-            <polygon points="230,280 260,265 290,280 290,310 260,325 230,310" fill="rgba(255,200,0,0.55)" />
-            <polygon points="80,350 110,335 140,350 140,380 110,395 80,380" fill="rgba(255,200,0,0.5)" />
-            <polygon points="140,380 170,365 200,380 200,410 170,425 140,410" fill="rgba(255,227,35,0.45)" />
-            <polygon points="200,350 230,335 260,350 260,380 230,395 200,380" fill="rgba(255,200,0,0.6)" />
-            <polygon points="260,380 290,365 320,380 320,410 290,425 260,410" fill="rgba(255,227,35,0.4)" />
+            {/* Row 2 */}
+            <polygon points="-100,180 -40,120 40,120 100,180 40,240 -40,240" fill="rgba(255,227,35,0.35)" />
+            <polygon points="100,180 160,120 240,120 300,180 240,240 160,240" fill="rgba(255,200,0,0.55)" />
+            <polygon points="300,180 360,120 440,120 500,180 440,240 360,240" fill="rgba(255,227,35,0.45)" />
             
-            {/* More light yellow */}
-            <polygon points="30,420 60,405 90,420 90,450 60,465 30,450" fill="rgba(255,227,35,0.35)" />
-            <polygon points="90,450 120,435 150,450 150,480 120,495 90,480" fill="rgba(255,227,35,0.5)" />
-            <polygon points="150,420 180,405 210,420 210,450 180,465 150,450" fill="rgba(255,200,0,0.45)" />
-            <polygon points="210,450 240,435 270,450 270,480 240,495 210,480" fill="rgba(255,227,35,0.4)" />
-            <polygon points="270,420 300,405 330,420 330,450 300,465 270,450" fill="rgba(255,200,0,0.5)" />
+            {/* Row 3 */}
+            <polygon points="0,300 60,240 140,240 200,300 140,360 60,360" fill="rgba(255,200,0,0.5)" />
+            <polygon points="200,300 260,240 340,240 400,300 340,360 260,360" fill="rgba(255,227,35,0.4)" />
             
-            {/* Bottom section */}
-            <polygon points="60,520 90,505 120,520 120,550 90,565 60,550" fill="rgba(255,227,35,0.45)" />
-            <polygon points="120,550 150,535 180,550 180,580 150,595 120,580" fill="rgba(255,200,0,0.55)" />
-            <polygon points="180,520 210,505 240,520 240,550 210,565 180,550" fill="rgba(255,227,35,0.4)" />
-            <polygon points="240,550 270,535 300,550 300,580 270,595 240,580" fill="rgba(255,227,35,0.35)" />
-            <polygon points="300,520 330,505 360,520 360,550 330,565 300,550" fill="rgba(255,200,0,0.5)" />
+            {/* Row 4 */}
+            <polygon points="-100,420 -40,360 40,360 100,420 40,480 -40,480" fill="rgba(255,200,0,0.45)" />
+            <polygon points="100,420 160,360 240,360 300,420 240,480 160,480" fill="rgba(255,227,35,0.5)" />
+            <polygon points="300,420 360,360 440,360 500,420 440,480 360,480" fill="rgba(255,200,0,0.55)" />
+            
+            {/* Row 5 */}
+            <polygon points="0,540 60,480 140,480 200,540 140,600 60,600" fill="rgba(255,227,35,0.45)" />
+            <polygon points="200,540 260,480 340,480 400,540 340,600 260,600" fill="rgba(255,200,0,0.5)" />
+            
+            {/* Row 6 */}
+            <polygon points="-100,660 -40,600 40,600 100,660 40,720 -40,720" fill="rgba(255,227,35,0.4)" />
+            <polygon points="100,660 160,600 240,600 300,660 240,720 160,720" fill="rgba(255,200,0,0.55)" />
+            <polygon points="300,660 360,600 440,600 500,660 440,720 360,720" fill="rgba(255,227,35,0.5)" />
+            
+            {/* Row 7 */}
+            <polygon points="0,780 60,720 140,720 200,780 140,840 60,840" fill="rgba(255,200,0,0.5)" />
+            <polygon points="200,780 260,720 340,720 400,780 340,840 260,840" fill="rgba(255,227,35,0.45)" />
+            
+            {/* Row 8 */}
+            <polygon points="100,900 160,840 240,840 300,900 240,960 160,960" fill="rgba(255,227,35,0.4)" />
           </svg>
         </div>
 
@@ -243,85 +377,164 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Bottom Section - White background covering both banner and nav */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4 pb-2">
-        {/* Promotional Banner */}
-        {showBanner && (
-          <div className="mx-3 relative mb-3">
-            <button
-              onClick={() => setShowBanner(false)}
-              className="absolute top-2 right-2 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center z-10"
-            >
-              <X className="w-4 h-4 text-gray-600" />
+      {/* Ride Request Card */}
+      {currentRide && (
+        <div className="absolute bottom-0 left-0 right-0 z-20">
+          {/* Accept Button */}
+          <div className="px-4 mb-3">
+            <button className="w-full bg-[#ffe323] text-[#1a1a1a] font-bold text-lg py-3 rounded-lg border-2 border-[#1a1a1a]">
+              Toque para aceitar a corrida
             </button>
-            <div className="rounded-xl overflow-hidden">
-              <Image
-                src="/images/banner-99moto.png"
-                alt="99 Moto - Ganhe mais sem parar no ponto"
-                width={400}
-                height={120}
-                className="w-full h-auto"
-                loading="eager"
-                priority
-              />
-            </div>
           </div>
-        )}
-
-        {/* Bottom Navigation Bar */}
-        <div className="px-4 py-2 flex items-center justify-between">
-          {/* Settings Icon */}
-          <button className="w-12 h-12 flex items-center justify-center">
-            <Image
-              src="/images/icon-settings.png"
-              alt="Configurações"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-            />
-          </button>
-
-          {/* Red dot indicator */}
-          {connectionState === "idle" && (
-            <div className="w-2.5 h-2.5 bg-red-500 rounded-full -mr-1" />
-          )}
-
-          {/* Connect/Loading/Searching Button */}
-          {connectionState === "loading" ? (
-            <div className="flex-1 mx-3 max-w-[200px] bg-white text-gray-600 font-bold text-lg py-4 rounded-full flex flex-col items-center justify-center">
-              <span>Carregando...</span>
-              <div className="flex gap-1.5 mt-1">
-                <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+          
+          {/* Ride Details Card */}
+          <div className="bg-[#1a1a1a] rounded-t-3xl p-5">
+            {/* Price */}
+            <div className="text-center mb-4">
+              <div className="text-4xl font-bold text-white">
+                R${currentRide.price.toFixed(2).replace(".", ",")}
+              </div>
+              <div className="text-gray-400 text-sm">
+                R${currentRide.pricePerKm.toFixed(2).replace(".", ",")}/km
               </div>
             </div>
-          ) : connectionState === "searching" ? (
-            <button className="flex-1 mx-3 max-w-[200px] relative overflow-hidden bg-[#ffe323]/30 text-[#1a1a1a] font-bold text-xl py-4 rounded-full">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#ffe323]/60 to-transparent animate-shimmer" />
-              <span className="relative z-10">Buscando</span>
-            </button>
-          ) : (
-            <button 
-              onClick={handleConnect}
-              className="flex-1 mx-3 max-w-[200px] bg-[#d1d1d1] hover:bg-[#c5c5c5] text-[#1a1a1a] font-bold text-xl py-4 rounded-full transition-colors shadow-sm"
-            >
-              Conectar
-            </button>
+            
+            {/* Badges */}
+            <div className="flex justify-center gap-3 mb-4">
+              {currentRide.included > 0 && (
+                <span className="bg-green-600 text-white text-xs px-3 py-1 rounded-full">
+                  R${currentRide.included.toFixed(2).replace(".", ",")} incluídos
+                </span>
+              )}
+              <span className="bg-[#d4a017] text-white text-xs px-3 py-1 rounded-full">
+                R${currentRide.bonus.toFixed(2).replace(".", ",")}
+              </span>
+            </div>
+            
+            {/* Rating and Profile */}
+            <div className="flex items-center justify-center gap-2 mb-4 text-white text-sm">
+              <span className="flex items-center gap-1">
+                <span className="text-green-500">●</span>
+                {currentRide.rating}
+              </span>
+              <span>·</span>
+              <span>{currentRide.totalRides} corridas</span>
+              <span>·</span>
+              <span className="flex items-center gap-1">
+                <span className="bg-blue-500 text-xs px-2 py-0.5 rounded">{currentRide.profile}</span>
+              </span>
+            </div>
+            
+            {/* Pickup Location */}
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5" />
+              <div className="flex-1">
+                <div className="text-white font-medium">
+                  {currentRide.pickupTime}min ({currentRide.pickupDistance}km)
+                </div>
+                <div className="text-gray-400 text-sm truncate">
+                  {currentRide.pickupAddress}
+                </div>
+              </div>
+            </div>
+            
+            {/* Dropoff Location */}
+            <div className="flex items-start gap-3">
+              <div className="w-3 h-3 bg-red-500 rounded-full mt-1.5" />
+              <div className="flex-1">
+                <div className="text-white font-medium">
+                  {currentRide.dropoffTime}min ({currentRide.dropoffDistance}km)
+                </div>
+                <div className="text-gray-400 text-sm truncate">
+                  {currentRide.dropoffAddress}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
+      {!currentRide && (
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4 pb-2">
+          {/* Promotional Banner */}
+          {showBanner && (
+            <div className="mx-3 relative mb-3">
+              <button
+                onClick={() => setShowBanner(false)}
+                className="absolute top-2 right-2 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center z-10"
+              >
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+              <div className="rounded-xl overflow-hidden">
+                <Image
+                  src="/images/banner-99moto.png"
+                  alt="99 Moto - Ganhe mais sem parar no ponto"
+                  width={400}
+                  height={120}
+                  className="w-full h-auto"
+                  loading="eager"
+                  priority
+                />
+              </div>
+            </div>
           )}
 
-          {/* Message Icon */}
-          <button className="w-12 h-12 flex items-center justify-center">
-            <Image
-              src="/images/icon-msg.png"
-              alt="Mensagens"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-            />
-          </button>
+          {/* Bottom Navigation Bar */}
+          <div className="px-4 py-2 flex items-center justify-center gap-2">
+            {/* Settings Icon */}
+            <button className="w-10 h-10 flex items-center justify-center">
+              <Image
+                src="/images/icon-settings.png"
+                alt="Configurações"
+                width={28}
+                height={28}
+                className="w-7 h-7"
+              />
+            </button>
+
+            {/* Connect/Loading/Searching Button */}
+            {connectionState === "loading" ? (
+              <div className="mx-1 min-w-[180px] bg-white text-gray-600 font-bold text-lg py-4 rounded-full flex flex-col items-center justify-center">
+                <span>Carregando...</span>
+                <div className="flex gap-1.5 mt-1">
+                  <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            ) : connectionState === "searching" ? (
+              <button 
+                onClick={handleConnect}
+                className="mx-1 min-w-[180px] relative overflow-hidden bg-transparent text-[#1a1a1a] font-bold text-xl py-4 rounded-full"
+              >
+                <div className="absolute inset-0 overflow-hidden rounded-full">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#ffe323]/70 to-transparent animate-shimmer-wave" />
+                </div>
+                <span className="relative z-10">Buscando</span>
+              </button>
+            ) : (
+              <button 
+                onClick={handleConnect}
+                className="mx-1 min-w-[180px] bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-xl py-4 rounded-full transition-colors shadow-sm"
+              >
+                Conectar
+              </button>
+            )}
+
+            {/* Message Icon */}
+            <button className="w-10 h-10 flex items-center justify-center">
+              <Image
+                src="/images/icon-msg.png"
+                alt="Mensagens"
+                width={28}
+                height={28}
+                className="w-7 h-7"
+              />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Menu Overlay */}
       {menuOpen && (
@@ -420,13 +633,14 @@ export default function HomePage() {
                       <div className="text-2xl font-bold text-gray-800 tracking-wider">{vehicle.placa}</div>
                       <div className="text-xs text-gray-500 mt-1">{vehicle.nome} ({vehicle.cor})</div>
                     </div>
-                    <div className="w-24 h-20">
+                    <div className="w-24 h-20 flex items-center justify-center">
                       <Image
                         src={vehicle.type === "moto" ? "/images/icon-moto.png" : "/images/icon-car.png"}
                         alt={vehicle.type === "moto" ? "Moto" : "Carro"}
                         width={96}
                         height={80}
-                        className="w-auto h-full object-contain"
+                        style={{ width: "auto", height: "100%" }}
+                        className="object-contain"
                       />
                     </div>
                   </div>
@@ -680,12 +894,48 @@ export default function HomePage() {
 
           {/* Content */}
           <div className="flex-1 flex flex-col items-center justify-center px-6 bg-white">
-            {/* Circular Face Frame */}
-            <div className="relative w-64 h-64 mb-8">
-              {/* Outer ring */}
-              <div className="absolute inset-0 rounded-full border-4 border-[#3b82f6] animate-pulse" />
+            {/* Circular Face Frame with rotating animation */}
+            <div className="relative w-72 h-72 mb-8">
+              {/* Rotating outer ring */}
+              <svg className="absolute inset-0 w-full h-full animate-spin-slow" viewBox="0 0 288 288">
+                <circle
+                  cx="144"
+                  cy="144"
+                  r="140"
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="4"
+                  strokeDasharray="60 30"
+                  strokeLinecap="round"
+                />
+              </svg>
+              
+              {/* Progress ring */}
+              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 288 288">
+                <circle
+                  cx="144"
+                  cy="144"
+                  r="130"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="6"
+                />
+                <circle
+                  cx="144"
+                  cy="144"
+                  r="130"
+                  fill="none"
+                  stroke="#3b82f6"
+                  strokeWidth="6"
+                  strokeDasharray={`${2 * Math.PI * 130}`}
+                  strokeDashoffset={`${2 * Math.PI * 130 * (1 - scanProgress / 100)}`}
+                  strokeLinecap="round"
+                  className="transition-all duration-100"
+                />
+              </svg>
+              
               {/* Inner circle with face */}
-              <div className="absolute inset-2 rounded-full overflow-hidden border-4 border-[#93c5fd]">
+              <div className="absolute inset-6 rounded-full overflow-hidden border-4 border-[#93c5fd]">
                 <Image
                   src={profile.photo}
                   alt="Face"
@@ -694,6 +944,12 @@ export default function HomePage() {
                   className="w-full h-full object-cover"
                 />
               </div>
+              
+              {/* Scanning line effect */}
+              <div 
+                className="absolute left-6 right-6 h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent animate-scan-line"
+                style={{ top: `${6 + (scanProgress / 100) * 80}%` }}
+              />
             </div>
 
             {/* Instructions */}
@@ -711,16 +967,16 @@ export default function HomePage() {
       )}
 
       <style jsx>{`
-        @keyframes shimmer {
+        @keyframes shimmer-wave {
           0% {
-            transform: translateX(-100%);
+            transform: translateX(-200%);
           }
           100% {
-            transform: translateX(100%);
+            transform: translateX(200%);
           }
         }
-        .animate-shimmer {
-          animation: shimmer 1.5s infinite;
+        .animate-shimmer-wave {
+          animation: shimmer-wave 2s infinite;
         }
         @keyframes fade-in {
           from {
@@ -732,6 +988,28 @@ export default function HomePage() {
         }
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
+        }
+        @keyframes spin-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
+        }
+        @keyframes scan-line {
+          0%, 100% {
+            opacity: 0;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+        .animate-scan-line {
+          animation: scan-line 1s ease-in-out infinite;
         }
       `}</style>
     </div>
