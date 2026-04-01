@@ -15,16 +15,18 @@ export default function HomePage() {
         <button className="absolute left-4 top-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md">
           {/* Red dot indicator */}
           <div className="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
-          {/* Hamburger lines */}
-          <div className="flex flex-col gap-[3px]">
-            <div className="w-5 h-[2px] bg-[#1a1a1a] rounded-full" />
-            <div className="w-5 h-[2px] bg-[#1a1a1a] rounded-full" />
-            <div className="w-5 h-[2px] bg-[#1a1a1a] rounded-full" />
-          </div>
+          {/* Menu Icon */}
+          <Image
+            src="/images/icon-menu.png"
+            alt="Menu"
+            width={20}
+            height={20}
+            className="w-5 h-5"
+          />
         </button>
 
         {/* Balance - Centered */}
-        <button className="flex items-center gap-1.5 bg-[#2b3a4a] text-white px-5 py-2.5 rounded-full text-[15px] font-medium">
+        <button className="flex items-center gap-1.5 bg-[#292444] text-white px-6 py-3 rounded-full text-[17px] font-medium">
           R$0,00
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9" />
@@ -47,13 +49,13 @@ export default function HomePage() {
 
         {/* Center Location Button */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: "-40px" }}>
-          <div className="w-14 h-14 rounded-full border-[2px] border-[#4285f4] bg-white/90 flex items-center justify-center shadow-lg">
-            {/* Blue navigation arrow */}
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#4285f4">
-              <path d="M12 2L8 10h8L12 2z" />
-              <circle cx="12" cy="14" r="3" fill="#4285f4" />
-            </svg>
-          </div>
+          <Image
+            src="/images/icon-arrow.png"
+            alt="Localização"
+            width={56}
+            height={56}
+            className="w-14 h-14"
+          />
         </div>
       </div>
 
@@ -83,31 +85,32 @@ export default function HomePage() {
         )}
 
         {/* Bottom Navigation Bar - Directly attached to banner */}
-        <div className="bg-[#f8f5f0] px-4 py-3 flex items-center justify-between">
-          {/* Settings/Sliders Icon */}
+        <div className="px-4 py-3 flex items-center justify-between">
+          {/* Settings Icon */}
           <button className="w-10 h-10 flex items-center justify-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round">
-              <line x1="4" y1="6" x2="20" y2="6" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="18" x2="20" y2="18" />
-              <circle cx="8" cy="6" r="2" fill="#1a1a1a" stroke="none" />
-              <circle cx="16" cy="12" r="2" fill="#1a1a1a" stroke="none" />
-              <circle cx="10" cy="18" r="2" fill="#1a1a1a" stroke="none" />
-            </svg>
+            <Image
+              src="/images/icon-settings.png"
+              alt="Configurações"
+              width={28}
+              height={28}
+              className="w-7 h-7"
+            />
           </button>
 
-          {/* Connect Button - Smaller lateral margins */}
-          <button className="flex-1 mx-6 bg-[#FFD700] hover:bg-[#f5cc00] text-[#1a1a1a] font-bold text-lg py-3.5 rounded-full transition-colors">
+          {/* Connect Button - Smaller width, larger text */}
+          <button className="flex-1 mx-4 max-w-[220px] bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-xl py-4 rounded-full transition-colors shadow-sm">
             Conectar
           </button>
 
-          {/* Chat/Message Icon */}
+          {/* Message Icon */}
           <button className="w-10 h-10 flex items-center justify-center">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-              <line x1="8" y1="9" x2="16" y2="9" />
-              <line x1="8" y1="13" x2="13" y2="13" />
-            </svg>
+            <Image
+              src="/images/icon-msg.png"
+              alt="Mensagens"
+              width={28}
+              height={28}
+              className="w-7 h-7"
+            />
           </button>
         </div>
       </div>
