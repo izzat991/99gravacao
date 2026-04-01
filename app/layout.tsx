@@ -11,29 +11,29 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#FFD700',
+  themeColor: '#FFE323',
+  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
-  title: '99 Moto - Motorista',
-  description: 'App para motoristas 99 Moto',
+  title: '99 Motorista e Entregador',
+  description: 'App para motoristas e entregadores 99',
   generator: 'v0.app',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: '99 Motorista',
+  },
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/images/logo-99.webp',
+        sizes: '192x192',
+        type: 'image/webp',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/images/logo-99.webp',
   },
 }
 
@@ -43,7 +43,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
+      <head>
+        <link rel="apple-touch-icon" href="/images/logo-99.webp" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="99 Motorista" />
+      </head>
       <body className="font-sans antialiased">
         {children}
         <Analytics />

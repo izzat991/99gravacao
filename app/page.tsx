@@ -36,29 +36,35 @@ interface RideRequest {
 
 type ConnectionState = "idle" | "loading" | "facial-intro" | "facial-scan" | "searching"
 
-// Random street names for generating fake addresses
+// Random street names for generating fake addresses - Fortaleza, CE
 const streetNames = [
-  "R. Julien Fauvel",
-  "R. São Sebastião",
-  "Av. Brasil",
-  "R. das Flores",
-  "Av. Paulista",
-  "R. Augusta",
-  "R. Oscar Freire",
-  "Av. Rebouças",
-  "R. Consolação",
-  "R. Haddock Lobo"
+  "Av. Beira Mar",
+  "R. Monsenhor Tabosa",
+  "Av. Domingos Olímpio",
+  "R. Padre Valdevino",
+  "Av. Santos Dumont",
+  "R. Barão de Aracati",
+  "Av. Abolição",
+  "R. Desembargador Moreira",
+  "Av. Pontes Vieira",
+  "R. Floriano Peixoto",
+  "Av. Bezerra de Menezes",
+  "R. Pedro Borges"
 ]
 
 const neighborhoods = [
-  "Nucleo Res Silvio Vilari",
-  "Parque Santa Monica",
+  "Aldeota",
+  "Meireles",
   "Centro",
-  "Jardins",
-  "Vila Mariana",
-  "Pinheiros",
-  "Moema",
-  "Itaim Bibi"
+  "Praia de Iracema",
+  "Varjota",
+  "Fátima",
+  "Dionísio Torres",
+  "Papicu",
+  "Mucuripe",
+  "Benfica",
+  "Montese",
+  "Parquelândia"
 ]
 
 function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
@@ -86,6 +92,7 @@ function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
 }
 
 export default function HomePage() {
+  const [showSplash, setShowSplash] = useState(true)
   const [showBanner, setShowBanner] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [vehicleOpen, setVehicleOpen] = useState(false)
@@ -115,6 +122,15 @@ export default function HomePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
   const countdownRef = useRef<NodeJS.Timeout | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Splash screen timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false)
+    }, 2500)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Load from localStorage
   useEffect(() => {
@@ -151,6 +167,14 @@ export default function HomePage() {
         setRideCountdown(100)
         // Trigger slide-in animation
         setTimeout(() => setRideVisible(true), 50)
+        
+        // Start playing sound in loop
+        if (audioRef.current) {
+          audioRef.current.loop = true
+          audioRef.current.play().catch(() => {
+            // Audio play might fail if user hasn't interacted with page
+          })
+        }
       }, 8000)
       
       return () => {
@@ -161,9 +185,21 @@ export default function HomePage() {
     }
   }, [connectionState, currentRide, vehicles])
 
-  // Dismiss ride with fade out
+  // Stop sound when ride is dismissed
+  useEffect(() => {
+    if (!currentRide && audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+  }, [currentRide])
+
+  // Dismiss ride with fade out - MUST be defined before useEffect that uses it
   const dismissRide = useCallback(() => {
     setRideDismissing(true)
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
     setTimeout(() => {
       setCurrentRide(null)
       setRideVisible(false)
@@ -313,6 +349,16 @@ export default function HomePage() {
 
   return (
     <div className="relative h-screen w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8]">
+      {/* Audio element for ride notification */}
+      <audio ref={audioRef} src="/sounds/ride-notification.mp3" preload="auto" />
+
+      {/* Splash Screen */}
+      {showSplash && (
+        <div className="absolute inset-0 z-[100] bg-[#ffe323] flex items-center justify-center">
+          <span className="text-[120px] font-black text-[#1a1a1a] tracking-tight">99</span>
+        </div>
+      )}
+
       {/* Header - Hide when ride is showing */}
       {!currentRide && (
         <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4 pt-3">
