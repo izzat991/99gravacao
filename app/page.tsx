@@ -637,7 +637,7 @@ export default function HomePage() {
           )}
 
           {/* Bottom Navigation Bar */}
-          <div className="px-4 py-2 flex items-center justify-center gap-1">
+          <div className="px-4 pt-2 flex items-center justify-center gap-1" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
             {/* Settings Icon */}
             <button className="w-10 h-10 flex items-center justify-center">
               <Image
