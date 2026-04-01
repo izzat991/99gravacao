@@ -155,11 +155,11 @@ export default function HomePage() {
             </div>
             
             {/* Name and Rating */}
-            <div className="flex items-center gap-1.5 text-lg font-medium text-gray-800">
+            <div className="flex items-center gap-1.5 text-lg font-bold text-black">
               <span>Yuri</span>
-              <span className="text-gray-400">•</span>
+              <span>•</span>
               <span>5,00</span>
-              <Star className="w-4 h-4 fill-[#1a1a1a] text-[#1a1a1a]" />
+              <Star className="w-4 h-4 fill-black text-black" />
             </div>
 
             {/* Rota 99 Moto Button */}
@@ -175,8 +175,8 @@ export default function HomePage() {
                 <div className="text-xs text-gray-500 leading-tight">Taxa de<br/>Aceitação</div>
               </div>
               <div className="flex-1 text-center">
-                <div className="text-2xl font-bold text-purple-600">0%</div>
-                <div className="text-xs text-purple-600 leading-tight">Taxa de<br/>Finalização</div>
+                <div className="text-2xl font-bold text-[#cd415f]">0%</div>
+                <div className="text-xs text-[#cd415f] leading-tight">Taxa de<br/>Finalização</div>
               </div>
             </div>
           </div>
@@ -191,6 +191,7 @@ export default function HomePage() {
             <MenuItem label="Central de Educação" hasNotification />
             <MenuItem label="Loja 99" />
             <MenuItem label="Veículos" onClick={handleVehicleClick} loading={vehicleLoading} />
+            <MenuItem label="Horas Dirigidas" />
           </div>
         </div>
       </div>
@@ -258,9 +259,9 @@ function MenuItem({ label, hasNotification, onClick, loading }: { label: string;
   return (
     <button 
       onClick={onClick}
-      className="w-full flex items-center justify-between py-4 border-b border-gray-100 text-left"
+      className="w-full flex items-center justify-between py-3.5 text-left"
     >
-      <span className="text-base text-gray-800 font-medium flex items-center gap-2">
+      <span className="text-[17px] text-black font-medium flex items-center gap-2">
         {label}
         {hasNotification && <div className="w-2 h-2 bg-red-500 rounded-full" />}
       </span>
