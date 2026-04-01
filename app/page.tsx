@@ -139,44 +139,8 @@ export default function HomePage() {
     }
   }, [])
 
-  // Unlock audio on first user interaction (required for iOS)
-  // Uses muted audio to unlock without playing audible sound
-  useEffect(() => {
-    let audioUnlocked = false
-    
-    const unlockAudio = () => {
-      if (audioRef.current && !audioUnlocked) {
-        audioUnlocked = true
-        const audio = audioRef.current
-        // Save original volume and mute
-        const originalVolume = audio.volume
-        audio.volume = 0
-        audio.muted = true
-        
-        audio.play().then(() => {
-          audio.pause()
-          audio.currentTime = 0
-          // Restore volume and unmute
-          audio.volume = originalVolume
-          audio.muted = false
-        }).catch(() => {
-          // Reset state even on error
-          audio.volume = originalVolume
-          audio.muted = false
-        })
-      }
-      document.removeEventListener('touchstart', unlockAudio)
-      document.removeEventListener('click', unlockAudio)
-    }
-    
-    document.addEventListener('touchstart', unlockAudio, { once: true })
-    document.addEventListener('click', unlockAudio, { once: true })
-    
-    return () => {
-      document.removeEventListener('touchstart', unlockAudio)
-      document.removeEventListener('click', unlockAudio)
-    }
-  }, [])
+  // Audio is controlled when ride appears - no unlock needed
+  // The audio will play when a ride notification comes in
 
   // Load from localStorage
   useEffect(() => {
