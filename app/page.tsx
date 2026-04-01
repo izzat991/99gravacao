@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2 } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, ImageIcon, Settings } from "lucide-react"
 import Image from "next/image"
 
 interface Vehicle {
@@ -100,6 +100,7 @@ export default function HomePage() {
   const [vehicleLoading, setVehicleLoading] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [profileLoading, setProfileLoading] = useState(false)
+  const [driverProfileOpen, setDriverProfileOpen] = useState(false)
   const [addVehicleOpen, setAddVehicleOpen] = useState(false)
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null)
@@ -712,11 +713,14 @@ export default function HomePage() {
               <Star className="w-4 h-4 fill-black text-black" />
             </div>
 
-            {/* Rota 99 Button */}
-            <button className="mt-4 flex items-center gap-1 bg-[#292444] text-white px-5 py-2.5 rounded-full text-sm font-medium">
-              {routeLabel}
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                  {/* Rota 99 Button */}
+                  <button 
+                    onClick={() => setDriverProfileOpen(true)}
+                    className="mt-4 flex items-center gap-1 bg-[#292444] text-white px-5 py-2.5 rounded-full text-sm font-medium"
+                  >
+                    {routeLabel}
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
 
             {/* Stats */}
             <div className="flex w-full mt-6 border-t border-gray-100 pt-4">
@@ -895,6 +899,123 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Driver Profile Page */}
+      <div className={`absolute top-0 left-0 h-full w-full bg-white z-50 transition-transform duration-300 ease-out ${driverProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full overflow-y-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+            <button onClick={() => setDriverProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
+              <ChevronLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Perfil</span>
+            </button>
+            <div className="flex items-center gap-4">
+              <button className="p-2">
+                <Camera className="w-6 h-6 text-gray-600" />
+              </button>
+              <button className="p-2">
+                <ImageIcon className="w-6 h-6 text-gray-600" />
+              </button>
+              <button className="p-2">
+                <Settings className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
+          </div>
+
+          {/* Profile Content */}
+          <div className="flex flex-col items-center px-6 py-8">
+            {/* Photo */}
+            <div className="w-24 h-24 rounded-full bg-gray-200 overflow-hidden mb-4">
+              <Image
+                src={profile.photo}
+                alt="Profile"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+
+            {/* Name */}
+            <h1 className="text-xl font-bold text-gray-900 uppercase mb-3">{profile.name}</h1>
+
+            {/* Ver perfil público */}
+            <button className="px-4 py-2 border border-gray-300 rounded-full text-sm text-gray-700 mb-6">
+              Ver perfil público
+            </button>
+
+            {/* Stats */}
+            <div className="flex items-center gap-12 mb-8">
+              <div className="text-center">
+                <div className="text-xl font-bold text-gray-900">0</div>
+                <div className="text-sm text-gray-500">Corridas</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-gray-900">1 Dia</div>
+                <div className="text-sm text-gray-500">Avaliação</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Avaliação Section */}
+          <div className="px-6 pb-8">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-gray-900">Avaliação 0.00</span>
+                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+              </div>
+              <button className="flex items-center gap-1 text-sm text-gray-500">
+                Como funciona
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-500 mb-6">Média das 100 últimas avaliações de corridas</p>
+
+            {/* Rating Bars */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 w-6">5</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-yellow-400 rounded-full" style={{ width: '0%' }}></div>
+                </div>
+                <span className="text-sm text-gray-600 w-8 text-right">0</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 w-6">4</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-yellow-400 rounded-full" style={{ width: '0%' }}></div>
+                </div>
+                <span className="text-sm text-gray-600 w-8 text-right">0</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 w-6">3</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-yellow-400 rounded-full" style={{ width: '0%' }}></div>
+                </div>
+                <span className="text-sm text-gray-600 w-8 text-right">0</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 w-6">2</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-yellow-400 rounded-full" style={{ width: '0%' }}></div>
+                </div>
+                <span className="text-sm text-gray-600 w-8 text-right">0</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 w-6">1</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-yellow-400 rounded-full" style={{ width: '0%' }}></div>
+                </div>
+                <span className="text-sm text-gray-600 w-8 text-right">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Profile Edit Page (Horas Dirigidas) */}
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
