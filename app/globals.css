@@ -119,14 +119,14 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html {
-    /* Support safe-area for notch and Dynamic Island */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-  body {
+  html, body {
     @apply bg-background text-foreground;
-    /* Ensure body fills viewport considering safe areas */
-    min-height: 100vh;
-    min-height: 100dvh;
+    /* Prevent scroll on mobile - app-like behavior */
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 }

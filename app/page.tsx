@@ -139,8 +139,27 @@ export default function HomePage() {
     }
   }, [])
 
-  // Audio is controlled when ride appears - no unlock needed
-  // The audio will play when a ride notification comes in
+  // Unlock audio on first user interaction (required for iOS)
+  // This only loads the audio, doesn't play any sound
+  const audioUnlockedRef = useRef(false)
+  
+  useEffect(() => {
+    const unlockAudio = () => {
+      if (audioRef.current && !audioUnlockedRef.current) {
+        audioUnlockedRef.current = true
+        // Just load the audio without playing
+        audioRef.current.load()
+      }
+    }
+    
+    document.addEventListener('touchstart', unlockAudio, { once: true })
+    document.addEventListener('click', unlockAudio, { once: true })
+    
+    return () => {
+      document.removeEventListener('touchstart', unlockAudio)
+      document.removeEventListener('click', unlockAudio)
+    }
+  }, [])
 
   // Load from localStorage
   useEffect(() => {
@@ -178,12 +197,17 @@ export default function HomePage() {
         // Trigger slide-in animation
         setTimeout(() => setRideVisible(true), 50)
         
-        // Start playing sound in loop
+        // Start playing sound in loop (iOS requires user interaction first)
         if (audioRef.current) {
+          audioRef.current.currentTime = 0
           audioRef.current.loop = true
-          audioRef.current.play().catch(() => {
-            // Audio play might fail if user hasn't interacted with page
-          })
+          audioRef.current.volume = 1
+          const playPromise = audioRef.current.play()
+          if (playPromise !== undefined) {
+            playPromise.catch((error) => {
+              console.log("[v0] Audio play failed:", error)
+            })
+          }
         }
       }, 8000)
       
