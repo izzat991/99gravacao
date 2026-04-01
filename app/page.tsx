@@ -1,5 +1,6 @@
 "use client"
 
+// Profile edit with phone number
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor } from "lucide-react"
 import Image from "next/image"
@@ -15,7 +16,7 @@ interface Vehicle {
 interface UserProfile {
   name: string
   photo: string
-  drivingHours: number
+  phoneNumber: string
 }
 
 interface RideRequest {
@@ -127,7 +128,7 @@ export default function HomePage() {
   const [profile, setProfile] = useState<UserProfile>({
     name: "Yuri",
     photo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-RfRScspSGHgwcvwdNpPr6mhGL18tWj.png",
-    drivingHours: 0
+    phoneNumber: "(88) 9837182-3918"
   })
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [newVehicle, setNewVehicle] = useState({
@@ -137,7 +138,7 @@ export default function HomePage() {
     cor: ""
   })
   const [editName, setEditName] = useState("")
-  const [editHours, setEditHours] = useState(0)
+  const [editPhone, setEditPhone] = useState("")
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle")
   const [currentRide, setCurrentRide] = useState<RideRequest | null>(null)
   const [rideVisible, setRideVisible] = useState(false)
@@ -315,7 +316,7 @@ export default function HomePage() {
   const handleProfileClick = () => {
     setProfileLoading(true)
     setEditName(profile.name)
-    setEditHours(profile.drivingHours)
+    setEditPhone(profile.phoneNumber)
     setTimeout(() => {
       setProfileLoading(false)
       setProfileOpen(true)
@@ -362,7 +363,7 @@ export default function HomePage() {
   }
 
   const saveProfile = () => {
-    const newProfile = { ...profile, name: editName, drivingHours: editHours }
+    const newProfile = { ...profile, name: editName, phoneNumber: editPhone }
     setProfile(newProfile)
     localStorage.setItem("profile", JSON.stringify(newProfile))
     setProfileOpen(false)
@@ -769,7 +770,7 @@ export default function HomePage() {
             <MenuItem label="Central de Educação" hasNotification />
             <MenuItem label="Loja 99" />
             <MenuItem label="Veículos" onClick={handleVehicleClick} loading={vehicleLoading} />
-            <MenuItem label="Horas Dirigidas" onClick={handleProfileClick} loading={profileLoading} />
+            <MenuItem label="Meu Perfil" onClick={handleProfileClick} loading={profileLoading} />
           </div>
         </div>
       </div>
@@ -1065,7 +1066,7 @@ export default function HomePage() {
             <SettingsItem 
               icon={<Phone className="w-5 h-5 text-gray-600" />}
               label="Número de telefone"
-              value="(88) 9837182-3918"
+              value={profile.phoneNumber}
             />
             
             <SettingsItem 
@@ -1100,14 +1101,14 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Profile Edit Page (Horas Dirigidas) */}
+      {/* Profile Edit Page */}
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center px-4 bg-white" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
             <button onClick={() => setProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
-              <span className="text-lg font-medium">Horas Dirigidas</span>
+              <span className="text-lg font-medium">Meu Perfil</span>
             </button>
           </div>
 
@@ -1150,15 +1151,15 @@ export default function HomePage() {
               />
             </div>
 
-            {/* Driving Hours Input */}
+            {/* Phone Input */}
             <div className="w-full max-w-[300px]">
-              <label className="block text-sm font-medium text-gray-600 mb-2">Horas Dirigidas</label>
+              <label className="block text-sm font-medium text-gray-600 mb-2">Número de Telefone</label>
               <input
-                type="number"
-                value={editHours}
-                onChange={(e) => setEditHours(parseInt(e.target.value) || 0)}
+                type="tel"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                placeholder="(00) 00000-0000"
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 text-center text-lg font-medium"
-                min="0"
               />
             </div>
           </div>

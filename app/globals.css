@@ -121,17 +121,21 @@
   }
   html {
     height: 100%;
+    height: -webkit-fill-available;
     height: 100dvh;
   }
   body {
     @apply bg-background text-foreground;
     /* Prevent scroll on mobile - app-like behavior */
     height: 100%;
+    min-height: -webkit-fill-available;
     height: 100dvh;
     margin: 0;
     padding: 0;
+    padding-bottom: env(safe-area-inset-bottom);
     overflow: hidden;
     overscroll-behavior: none;
     touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
   }
 }
