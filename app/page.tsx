@@ -1,6 +1,7 @@
 "use client"
 
-// App 99 Motorista - v4
+// App 99 Motorista - Build v5 - PWA Layout Fix
+// Last updated: force rebuild
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
 import Image from "next/image"
@@ -471,7 +472,7 @@ export default function HomePage() {
   const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : "Rota 99 Moto"
 
   return (
-    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] h-full" style={{ minHeight: '100dvh', height: '100%' }}>
+    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col" style={{ height: '100dvh', minHeight: '-webkit-fill-available' }}>
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
         ref={audioRef} 
