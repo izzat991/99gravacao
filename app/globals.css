@@ -119,23 +119,65 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html {
+  html, body {
     height: 100%;
-    height: 100dvh;
-    height: -webkit-fill-available;
-    overflow: hidden;
-    background: #f5f0e8;
-  }
-  body {
-    @apply text-foreground;
-    min-height: 100%;
-    min-height: 100dvh;
-    min-height: -webkit-fill-available;
-    height: 100%;
+    width: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
-    overscroll-behavior: none;
     background: #f5f0e8;
+  }
+  
+  html {
+    /* Garante que viewport-fit: cover funcione */
+    touch-action: manipulation;
+  }
+  
+  body {
+    @apply text-foreground;
+    position: fixed;
+    inset: 0;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    -webkit-tap-highlight-color: transparent;
+    /* Não adiciona padding aqui - será tratado nos componentes */
+  }
+  
+  /* Container principal do app - preenche todo o viewport */
+  #app-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}
+
+/* Safe area helper classes - valores fixos para evitar problemas no iOS */
+@layer utilities {
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 12px);
+  }
+  /* Padding bottom fixo para todos os dispositivos */
+  .safe-bottom {
+    padding-bottom: 12px;
+  }
+  .safe-left {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+  .safe-right {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  
+  /* Classe para elementos que precisam estar acima da home bar do iPhone */
+  .above-home-bar {
+    padding-bottom: 34px; /* Altura aproximada da home bar do iPhone */
+  }
+  
+  /* Para iPhones com home bar (sem botão físico) */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .above-home-bar {
+      padding-bottom: max(env(safe-area-inset-bottom), 8px);
+    }
   }
 }

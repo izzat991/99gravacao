@@ -52,8 +52,8 @@ export default function RootLayout({
         {/* Safe area for Dynamic Island and notch */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
       </head>
-      <body className="font-sans antialiased bg-[#f5f0e8]" style={{ minHeight: '100dvh', height: '100%' }}>
-        <div id="app-container" style={{ height: '100dvh', minHeight: '-webkit-fill-available', display: 'flex', flexDirection: 'column' }}>
+      <body className="font-sans antialiased bg-[#f5f0e8]">
+        <div id="app-container">
           {children}
         </div>
         <Analytics />

@@ -470,7 +470,7 @@ export default function HomePage() {
   const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : "Rota 99 Moto"
 
   return (
-    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col" style={{ height: '100dvh', minHeight: '-webkit-fill-available' }}>
+    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col h-full">
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
         ref={audioRef} 
@@ -484,7 +484,6 @@ export default function HomePage() {
       {showSplash && (
         <div 
           className={`absolute inset-0 z-[100] bg-[#ffe323] flex items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}
-          style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <span className="text-[120px] font-black text-[#1a1a1a] tracking-tight">99</span>
         </div>
@@ -508,6 +507,7 @@ export default function HomePage() {
               width={20}
               height={20}
               className="w-5 h-5"
+              loading="eager"
             />
           </button>
 
@@ -597,10 +597,9 @@ export default function HomePage() {
       {/* Ride Request Card */}
       {currentRide && (
         <div 
-          className={`absolute bottom-0 left-0 right-0 z-20 px-4 transition-all duration-200 ease-out ${
+          className={`absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 transition-all duration-200 ease-out ${
             rideVisible && !rideDismissing ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
           } ${rideDismissing ? 'opacity-0' : ''}`}
-          style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 16px)' }}
         >
           {/* Ride Details Card */}
           <div className="bg-[#1a1a1a] rounded-2xl p-6">
@@ -680,7 +679,7 @@ export default function HomePage() {
 
       {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4 pb-3">
           {/* Promotional Banner */}
           {showBanner && (
             <div className="mx-3 relative mb-3">
@@ -714,6 +713,7 @@ export default function HomePage() {
                 width={28}
                 height={28}
                 className="w-7 h-7"
+                loading="eager"
               />
             </button>
 
