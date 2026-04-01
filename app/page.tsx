@@ -470,7 +470,7 @@ export default function HomePage() {
   const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : "Rota 99 Moto"
 
   return (
-    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col h-full">
+    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col">
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
         ref={audioRef} 
@@ -597,7 +597,7 @@ export default function HomePage() {
       {/* Ride Request Card */}
       {currentRide && (
         <div 
-          className={`absolute bottom-0 left-0 right-0 z-20 px-4 pb-3 transition-all duration-200 ease-out ${
+          className={`absolute bottom-0 left-0 right-0 z-20 px-4 transition-all duration-200 ease-out ${
             rideVisible && !rideDismissing ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
           } ${rideDismissing ? 'opacity-0' : ''}`}
         >
@@ -679,7 +679,7 @@ export default function HomePage() {
 
       {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4 pb-3">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4">
           {/* Promotional Banner */}
           {showBanner && (
             <div className="mx-3 relative mb-3">
