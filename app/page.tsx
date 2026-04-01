@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, ImageIcon, Settings } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor } from "lucide-react"
 import Image from "next/image"
 
 interface Vehicle {
@@ -15,6 +15,7 @@ interface Vehicle {
 interface UserProfile {
   name: string
   photo: string
+  drivingHours: number
 }
 
 interface RideRequest {
@@ -67,6 +68,25 @@ const neighborhoods = [
   "Parquelândia"
 ]
 
+function SettingsItem({ icon, label, value }: { 
+  icon: React.ReactNode
+  label: string
+  value?: string
+}) {
+  return (
+    <button className="flex items-center justify-between w-full py-4 border-b border-gray-50">
+      <div className="flex items-center gap-4">
+        {icon}
+        <div className="text-left">
+          <span className="text-base text-gray-900">{label}</span>
+          {value && <div className="text-sm text-gray-500">{value}</div>}
+        </div>
+      </div>
+      <ChevronRight className="w-5 h-5 text-gray-400" />
+    </button>
+  )
+}
+
 function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
   const minPrice = vehicleType === "moto" ? 5 : 13
   const maxPrice = vehicleType === "moto" ? 20 : 45
@@ -106,8 +126,10 @@ export default function HomePage() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null)
   const [profile, setProfile] = useState<UserProfile>({
     name: "Yuri",
-    photo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-RfRScspSGHgwcvwdNpPr6mhGL18tWj.png"
+    photo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-RfRScspSGHgwcvwdNpPr6mhGL18tWj.png",
+    drivingHours: 0
   })
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [newVehicle, setNewVehicle] = useState({
     type: "moto" as "moto" | "carro",
     placa: "",
@@ -115,6 +137,7 @@ export default function HomePage() {
     cor: ""
   })
   const [editName, setEditName] = useState("")
+  const [editHours, setEditHours] = useState(0)
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle")
   const [currentRide, setCurrentRide] = useState<RideRequest | null>(null)
   const [rideVisible, setRideVisible] = useState(false)
@@ -292,6 +315,7 @@ export default function HomePage() {
   const handleProfileClick = () => {
     setProfileLoading(true)
     setEditName(profile.name)
+    setEditHours(profile.drivingHours)
     setTimeout(() => {
       setProfileLoading(false)
       setProfileOpen(true)
@@ -338,7 +362,7 @@ export default function HomePage() {
   }
 
   const saveProfile = () => {
-    const newProfile = { ...profile, name: editName }
+    const newProfile = { ...profile, name: editName, drivingHours: editHours }
     setProfile(newProfile)
     localStorage.setItem("profile", JSON.stringify(newProfile))
     setProfileOpen(false)
@@ -909,17 +933,9 @@ export default function HomePage() {
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Perfil</span>
             </button>
-            <div className="flex items-center gap-4">
-              <button className="p-2">
-                <Camera className="w-6 h-6 text-gray-600" />
-              </button>
-              <button className="p-2">
-                <ImageIcon className="w-6 h-6 text-gray-600" />
-              </button>
-              <button className="p-2">
-                <Settings className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
+            <button onClick={() => setSettingsOpen(true)} className="p-2">
+              <Settings className="w-6 h-6 text-gray-600" />
+            </button>
           </div>
 
           {/* Profile Content */}
@@ -950,8 +966,8 @@ export default function HomePage() {
                 <div className="text-sm text-gray-500">Corridas</div>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-gray-900">1 Dia</div>
-                <div className="text-sm text-gray-500">Avaliação</div>
+                <div className="text-xl font-bold text-gray-900">1</div>
+                <div className="text-sm text-gray-500">Dia</div>
               </div>
             </div>
           </div>
@@ -1017,6 +1033,73 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Settings Page */}
+      <div className={`absolute top-0 left-0 h-full w-full bg-white z-[55] transition-transform duration-300 ease-out ${settingsOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full overflow-y-auto">
+          {/* Header */}
+          <div className="flex items-center px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+            <button onClick={() => setSettingsOpen(false)} className="flex items-center gap-2 text-gray-800">
+              <ChevronLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Configurações</span>
+            </button>
+          </div>
+
+          {/* Settings Content */}
+          <div className="px-6 py-6">
+            {/* Informações pessoais */}
+            <h2 className="text-base font-bold text-gray-900 mb-4">Informações pessoais</h2>
+            
+            <SettingsItem 
+              icon={<div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                <Image
+                  src={profile.photo}
+                  alt="Profile"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>}
+              label="Foto de perfil"
+            />
+            
+            <SettingsItem 
+              icon={<Phone className="w-5 h-5 text-gray-600" />}
+              label="Número de telefone"
+              value="(88) 9837182-3918"
+            />
+            
+            <SettingsItem 
+              icon={<Mail className="w-5 h-5 text-gray-600" />}
+              label="maxcontas1829@gmail.com"
+            />
+            
+            <SettingsItem 
+              icon={<MapPin className="w-5 h-5 text-gray-600" />}
+              label="Cidade"
+              value="Fortaleza"
+            />
+            
+            <SettingsItem 
+              icon={<Lock className="w-5 h-5 text-gray-600" />}
+              label="Senha"
+            />
+
+            {/* Gerenciamento de perfil */}
+            <h2 className="text-base font-bold text-gray-900 mb-4 mt-8">Gerenciamento de perfil</h2>
+            
+            <SettingsItem 
+              icon={<FileText className="w-5 h-5 text-gray-600" />}
+              label="Documentos pendentes"
+            />
+            
+            <SettingsItem 
+              icon={<Monitor className="w-5 h-5 text-gray-600" />}
+              label="Gestão de dispositivo"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Profile Edit Page (Horas Dirigidas) */}
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
@@ -1057,13 +1140,25 @@ export default function HomePage() {
             </div>
 
             {/* Name Input */}
-            <div className="w-full max-w-[300px]">
+            <div className="w-full max-w-[300px] mb-4">
               <label className="block text-sm font-medium text-gray-600 mb-2">Nome</label>
               <input
                 type="text"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 text-center text-lg font-medium"
+              />
+            </div>
+
+            {/* Driving Hours Input */}
+            <div className="w-full max-w-[300px]">
+              <label className="block text-sm font-medium text-gray-600 mb-2">Horas Dirigidas</label>
+              <input
+                type="number"
+                value={editHours}
+                onChange={(e) => setEditHours(parseInt(e.target.value) || 0)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-800 text-center text-lg font-medium"
+                min="0"
               />
             </div>
           </div>
