@@ -12,7 +12,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: '#FFE323',
-  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
@@ -47,10 +46,8 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/images/logo-99.webp" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="99 Motorista" />
-        {/* Safe area for Dynamic Island and notch */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
       </head>
       <body className="font-sans antialiased bg-[#f5f0e8]">
         <div id="app-container">

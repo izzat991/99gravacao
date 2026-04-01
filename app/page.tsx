@@ -491,12 +491,11 @@ export default function HomePage() {
 
       {/* Header - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4" style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}>
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4 pt-3">
           {/* Menu Button - Top Left */}
           <button 
             onClick={() => setMenuOpen(true)}
-            className="absolute left-4 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
-            style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+            className="absolute left-4 top-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
           >
             {/* Red dot indicator - Right side */}
             <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
@@ -525,8 +524,7 @@ export default function HomePage() {
       {currentRide && (
         <button 
           onClick={dismissRide}
-          className={`absolute right-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center transition-opacity duration-300 ${rideDismissing ? 'opacity-0' : 'opacity-100'}`}
-          style={{ top: 'max(env(safe-area-inset-top), 16px)' }}
+          className={`absolute right-4 top-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center transition-opacity duration-300 ${rideDismissing ? 'opacity-0' : 'opacity-100'}`}
         >
           <X className="w-5 h-5 text-white" />
         </button>
@@ -772,7 +770,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-[85%] max-w-[340px] bg-white z-40 transition-transform duration-300 ease-out ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full overflow-y-auto">
           {/* Profile Section */}
-          <div className="flex flex-col items-center pb-6 px-6" style={{ paddingTop: 'max(env(safe-area-inset-top), 48px)' }}>
+          <div className="flex flex-col items-center pb-6 px-6 pt-12">
             {/* Profile Photo */}
             <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden mb-3">
               <Image
@@ -833,7 +831,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${vehicleOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center px-4 bg-white" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center px-4 py-4 bg-white">
             <button onClick={() => setVehicleOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Veículo</span>
@@ -983,7 +981,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-white z-50 transition-transform duration-300 ease-out ${driverProfileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center justify-between px-4 py-4 bg-white border-b border-gray-100">
             <button onClick={() => setDriverProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Perfil</span>
@@ -1092,7 +1090,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-white z-[55] transition-transform duration-300 ease-out ${settingsOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full overflow-y-auto">
           {/* Header */}
-          <div className="flex items-center px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center px-4 py-4 bg-white border-b border-gray-100">
             <button onClick={() => setSettingsOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Configurações</span>
@@ -1160,7 +1158,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[56] transition-transform duration-300 ease-out ${preferencesOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center px-4 py-4 bg-white border-b border-gray-100">
             <button onClick={() => setPreferencesOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Preferências de solicitações</span>
@@ -1222,7 +1220,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[57] transition-transform duration-300 ease-out ${statusTestOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center justify-between px-4 py-4 bg-white border-b border-gray-100">
             <button onClick={() => setStatusTestOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Teste de status</span>
@@ -1309,7 +1307,7 @@ export default function HomePage() {
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center px-4 bg-white" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center px-4 py-4 bg-white">
             <button onClick={() => setProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Horas Dirigidas</span>
@@ -1384,7 +1382,7 @@ export default function HomePage() {
       {connectionState === "facial-intro" && (
         <div className="absolute inset-0 bg-white z-[70] flex flex-col">
           {/* Header */}
-          <div className="flex items-center px-4 border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center px-4 py-4 border-b border-gray-100">
             <button onClick={() => setConnectionState("idle")} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Reconhecimento facial</span>
@@ -1434,7 +1432,7 @@ export default function HomePage() {
       {connectionState === "facial-scan" && (
         <div className="absolute inset-0 bg-white z-[70] flex flex-col">
           {/* Header */}
-          <div className="flex items-center px-4 bg-[#1a1a1a]" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+          <div className="flex items-center px-4 py-4 bg-[#1a1a1a]">
             <button onClick={() => setConnectionState("idle")} className="flex items-center gap-2 text-white">
               <ChevronLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Reconhecimento facial</span>
@@ -1506,30 +1504,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <style jsx>{`
-        @keyframes shimmer-wave {
-          0% {
-            transform: translateX(-200%);
-          }
-          100% {
-            transform: translateX(200%);
-          }
-        }
-        .animate-shimmer-wave {
-          animation: shimmer-wave 2s infinite;
-        }
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
-        }
-      `}</style>
+
     </div>
   )
 }

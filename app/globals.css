@@ -128,22 +128,13 @@
     background: #f5f0e8;
   }
   
-  html {
-    /* Garante que viewport-fit: cover funcione */
-    touch-action: manipulation;
-  }
-  
   body {
     @apply text-foreground;
     position: fixed;
     inset: 0;
     overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
-    -webkit-tap-highlight-color: transparent;
-    /* Não adiciona padding aqui - será tratado nos componentes */
   }
   
-  /* Container principal do app - preenche todo o viewport */
   #app-container {
     position: fixed;
     inset: 0;
@@ -153,9 +144,29 @@
   }
 }
 
-/* Safe area helper classes */
-@layer utilities {
-  .safe-top {
-    padding-top: max(env(safe-area-inset-top, 0px), 12px);
+/* Custom animations */
+@keyframes shimmer-wave {
+  0% {
+    transform: translateX(-200%);
   }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-shimmer-wave {
+  animation: shimmer-wave 2s infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
 }
