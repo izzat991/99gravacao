@@ -1070,7 +1070,7 @@ function MenuItem({ label, hasNotification, onClick, loading }: {
       onClick={onClick}
       className="flex items-center justify-between w-full py-4"
     >
-      <span className="text-lg text-gray-800">{label}</span>
+      <span className="text-lg text-gray-800 font-semibold">{label}</span>
       <div className="flex items-center gap-2">
         {loading && (
           <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
