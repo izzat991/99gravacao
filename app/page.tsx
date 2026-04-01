@@ -135,6 +135,13 @@ export default function HomePage() {
   })
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [preferencesOpen, setPreferencesOpen] = useState(false)
+  const [configSolicitacoesOpen, setConfigSolicitacoesOpen] = useState(false)
+  const [solicitacaoToggles, setSolicitacaoToggles] = useState({
+    moto: true,
+    entregaMoto: false,
+    entregaMotoEmpresas: false,
+    entregaFood: false
+  })
   const [statusTestOpen, setStatusTestOpen] = useState(false)
   const [testProgress, setTestProgress] = useState(0)
   const [testComplete, setTestComplete] = useState(false)
@@ -1181,11 +1188,15 @@ export default function HomePage() {
                     <div className="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow" />
                   </div>
                 </button>
-                <button className="flex items-center justify-between w-full px-4 py-4">
+                <button 
+                  onClick={() => setConfigSolicitacoesOpen(true)}
+                  className="flex items-center justify-between w-full px-4 py-4"
+                >
                   <div className="flex items-center gap-3">
                     <Settings className="w-5 h-5 text-gray-600" />
                     <span className="text-base text-gray-900">Configurar solicitações</span>
                   </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
 
@@ -1216,8 +1227,91 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Configurar Solicitações Page */}
+      <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[57] transition-transform duration-300 ease-out ${configSolicitacoesOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center px-4 py-4 bg-white border-b border-gray-100">
+            <button onClick={() => setConfigSolicitacoesOpen(false)} className="flex items-center gap-2 text-gray-800">
+              <ChevronLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Configurar solicitações</span>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className="px-6 py-6">
+              {/* Preferências de solicitações */}
+              <h2 className="text-base font-bold text-gray-900 mb-1">Preferências de solicitações</h2>
+              <p className="text-sm text-gray-500 mb-4">Selecione quais tipos de solicitação você quer receber</p>
+              
+              <div className="bg-white rounded-xl overflow-hidden mb-6">
+                {/* Moto */}
+                <button 
+                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, moto: !prev.moto }))}
+                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                >
+                  <span className="text-base text-gray-900">Moto</span>
+                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.moto ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.moto ? 'right-1' : 'left-1'}`} />
+                  </div>
+                </button>
+
+                {/* Entrega Moto */}
+                <button 
+                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaMoto: !prev.entregaMoto }))}
+                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                >
+                  <span className="text-base text-gray-900">Entrega Moto</span>
+                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaMoto ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaMoto ? 'right-1' : 'left-1'}`} />
+                  </div>
+                </button>
+
+                {/* Entrega Moto Empresas */}
+                <button 
+                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaMotoEmpresas: !prev.entregaMotoEmpresas }))}
+                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                >
+                  <span className="text-base text-gray-900">Entrega Moto Empresas</span>
+                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaMotoEmpresas ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaMotoEmpresas ? 'right-1' : 'left-1'}`} />
+                  </div>
+                </button>
+
+                {/* Entrega Food */}
+                <button 
+                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaFood: !prev.entregaFood }))}
+                  className="flex items-center justify-between w-full px-4 py-4"
+                >
+                  <span className="text-base text-gray-900">Entrega Food</span>
+                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaFood ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaFood ? 'right-1' : 'left-1'}`} />
+                  </div>
+                </button>
+              </div>
+
+              {/* Outras configurações */}
+              <h2 className="text-base font-bold text-gray-900 mb-4">Outras configurações</h2>
+              
+              <div className="bg-white rounded-xl overflow-hidden">
+                <button className="flex items-center justify-between w-full px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base text-gray-900">Triagem de corridas</span>
+                    <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-[10px] text-gray-500">i</span>
+                    </div>
+                  </div>
+                  <span className="text-sm text-gray-500">Padrão: ativo</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Status Test Page */}
-      <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[57] transition-transform duration-300 ease-out ${statusTestOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[58] transition-transform duration-300 ease-out ${statusTestOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-4 bg-white border-b border-gray-100">
