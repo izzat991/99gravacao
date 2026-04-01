@@ -132,6 +132,28 @@ export default function HomePage() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Unlock audio on first user interaction (required for iOS)
+  useEffect(() => {
+    const unlockAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.play().then(() => {
+          audioRef.current?.pause()
+          audioRef.current!.currentTime = 0
+        }).catch(() => {})
+      }
+      document.removeEventListener('touchstart', unlockAudio)
+      document.removeEventListener('click', unlockAudio)
+    }
+    
+    document.addEventListener('touchstart', unlockAudio, { once: true })
+    document.addEventListener('click', unlockAudio, { once: true })
+    
+    return () => {
+      document.removeEventListener('touchstart', unlockAudio)
+      document.removeEventListener('click', unlockAudio)
+    }
+  }, [])
+
   // Load from localStorage
   useEffect(() => {
     const savedVehicles = localStorage.getItem("vehicles")
@@ -358,8 +380,14 @@ export default function HomePage() {
 
   return (
     <div className="relative h-screen w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8]">
-      {/* Audio element for ride notification */}
-      <audio ref={audioRef} src="/sounds/ride-notification.mp3" preload="auto" />
+      {/* Audio element for ride notification - playsInline for iOS */}
+      <audio 
+        ref={audioRef} 
+        src="/sounds/ride-notification.mp3" 
+        preload="auto"
+        playsInline
+        webkit-playsinline="true"
+      />
 
       {/* Splash Screen */}
       {showSplash && (
@@ -370,11 +398,12 @@ export default function HomePage() {
 
       {/* Header - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4 pt-3">
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4" style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}>
           {/* Menu Button - Top Left */}
           <button 
             onClick={() => setMenuOpen(true)}
-            className="absolute left-4 top-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
+            className="absolute left-4 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
+            style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
           >
             {/* Red dot indicator - Right side */}
             <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
@@ -402,7 +431,8 @@ export default function HomePage() {
       {currentRide && (
         <button 
           onClick={dismissRide}
-          className={`absolute top-4 right-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center transition-opacity duration-300 ${rideDismissing ? 'opacity-0' : 'opacity-100'}`}
+          className={`absolute right-4 z-30 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center transition-opacity duration-300 ${rideDismissing ? 'opacity-0' : 'opacity-100'}`}
+          style={{ top: 'max(env(safe-area-inset-top), 16px)' }}
         >
           <X className="w-5 h-5 text-white" />
         </button>
@@ -444,6 +474,15 @@ export default function HomePage() {
             
             {/* Hexagon 7 - Center bottom - adjacent to 6 */}
             <polygon points="150,300 210,260 270,300 270,380 210,420 150,380" fill="rgba(255,227,80,0.5)" />
+            
+            {/* Hexagon 8 - Far right top - darker yellow */}
+            <polygon points="390,60 450,20 510,60 510,140 450,180 390,140" fill="rgba(218,165,32,0.55)" />
+            
+            {/* Hexagon 9 - Far right middle - darker yellow */}
+            <polygon points="330,180 390,140 450,180 450,260 390,300 330,260" fill="rgba(218,165,32,0.5)" />
+            
+            {/* Hexagon 10 - Far left - darker yellow */}
+            <polygon points="-30,180 30,140 90,180 90,260 30,300 -30,260" fill="rgba(218,165,32,0.5)" />
           </svg>
         </div>
 
