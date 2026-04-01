@@ -52,7 +52,7 @@ export default function RootLayout({
         {/* Safe area for Dynamic Island and notch */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
       </head>
-      <body className="font-sans antialiased bg-[#1a1a1a]">
+      <body className="font-sans antialiased bg-white">
         {children}
         <Analytics />
       </body>

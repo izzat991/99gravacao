@@ -1,8 +1,8 @@
 "use client"
 
-// Profile edit with phone number
+// Profile edit with phone number - v2
 import { useState, useEffect, useRef, useCallback } from "react"
-import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
 import Image from "next/image"
 
 interface Vehicle {
@@ -131,6 +131,18 @@ export default function HomePage() {
     phoneNumber: "(88) 9837182-3918"
   })
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [preferencesOpen, setPreferencesOpen] = useState(false)
+  const [statusTestOpen, setStatusTestOpen] = useState(false)
+  const [testProgress, setTestProgress] = useState(0)
+  const [testComplete, setTestComplete] = useState(false)
+  const [testItems, setTestItems] = useState([
+    { label: "Status de internet", status: "pending" as "pending" | "loading" | "done" },
+    { label: "Localização", status: "pending" as "pending" | "loading" | "done" },
+    { label: "Status do perfil", status: "pending" as "pending" | "loading" | "done" },
+    { label: "Análise de documentos", status: "pending" as "pending" | "loading" | "done" },
+    { label: "Status da solicitação", status: "pending" as "pending" | "loading" | "done" },
+    { label: "Configurações da solicitação", status: "pending" as "pending" | "loading" | "done" },
+  ])
   const [newVehicle, setNewVehicle] = useState({
     type: "moto" as "moto" | "carro",
     placa: "",
@@ -367,6 +379,44 @@ export default function HomePage() {
     setProfile(newProfile)
     localStorage.setItem("profile", JSON.stringify(newProfile))
     setProfileOpen(false)
+  }
+
+  const startStatusTest = () => {
+    setStatusTestOpen(true)
+    setTestProgress(0)
+    setTestComplete(false)
+    setTestItems([
+      { label: "Status de internet", status: "pending" },
+      { label: "Localização", status: "pending" },
+      { label: "Status do perfil", status: "pending" },
+      { label: "Análise de documentos", status: "pending" },
+      { label: "Status da solicitação", status: "pending" },
+      { label: "Configurações da solicitação", status: "pending" },
+    ])
+    
+    // Start the test sequence
+    const runTest = (index: number) => {
+      if (index >= 6) {
+        setTestComplete(true)
+        return
+      }
+      
+      // Set current item to loading
+      setTestItems(prev => prev.map((item, i) => 
+        i === index ? { ...item, status: "loading" } : item
+      ))
+      setTestProgress(index + 1)
+      
+      // After delay, mark as done and move to next
+      setTimeout(() => {
+        setTestItems(prev => prev.map((item, i) => 
+          i === index ? { ...item, status: "done" } : item
+        ))
+        runTest(index + 1)
+      }, 800)
+    }
+    
+    setTimeout(() => runTest(0), 500)
   }
 
   const handleConnect = () => {
@@ -653,7 +703,7 @@ export default function HomePage() {
           {/* Bottom Navigation Bar */}
           <div className="px-4 py-2 flex items-center justify-center gap-1">
             {/* Settings Icon */}
-            <button className="w-10 h-10 flex items-center justify-center">
+            <button onClick={() => setPreferencesOpen(true)} className="w-10 h-10 flex items-center justify-center">
               <Image
                 src="/images/icon-settings.png"
                 alt="Configurações"
@@ -770,7 +820,7 @@ export default function HomePage() {
             <MenuItem label="Central de Educação" hasNotification />
             <MenuItem label="Loja 99" />
             <MenuItem label="Veículos" onClick={handleVehicleClick} loading={vehicleLoading} />
-            <MenuItem label="Meu Perfil" onClick={handleProfileClick} loading={profileLoading} />
+            <MenuItem label="Horas Dirigidas" onClick={handleProfileClick} loading={profileLoading} />
           </div>
         </div>
       </div>
@@ -1101,6 +1151,161 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Preferences Page */}
+      <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[56] transition-transform duration-300 ease-out ${preferencesOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+            <button onClick={() => setPreferencesOpen(false)} className="flex items-center gap-2 text-gray-800">
+              <ChevronLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Preferências de solicitações</span>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className="px-6 py-6">
+              {/* Preferências de solicitações */}
+              <h2 className="text-base font-bold text-gray-900 mb-4">Preferências de solicitações</h2>
+              
+              <div className="bg-white rounded-xl overflow-hidden mb-6">
+                <button className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-5 h-5 text-gray-600" />
+                    <span className="text-base text-gray-900">Definir meu destino</span>
+                  </div>
+                  <div className="w-12 h-7 bg-gray-200 rounded-full relative">
+                    <div className="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow" />
+                  </div>
+                </button>
+                <button className="flex items-center justify-between w-full px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <Settings className="w-5 h-5 text-gray-600" />
+                    <span className="text-base text-gray-900">Configurar solicitações</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Assistente de ganhos */}
+              <h2 className="text-base font-bold text-gray-900 mb-4">Assistente de ganhos</h2>
+              
+              <div className="bg-white rounded-xl overflow-hidden">
+                <button 
+                  onClick={startStatusTest}
+                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                >
+                  <div className="flex items-center gap-3">
+                    <RefreshCw className="w-5 h-5 text-gray-600" />
+                    <span className="text-base text-gray-900">Teste de status</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </button>
+                <button className="flex items-center justify-between w-full px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 className="w-5 h-5 text-gray-600" />
+                    <span className="text-base text-gray-900">Eventos futuros</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Status Test Page */}
+      <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-[57] transition-transform duration-300 ease-out ${statusTestOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
+            <button onClick={() => setStatusTestOpen(false)} className="flex items-center gap-2 text-gray-800">
+              <ChevronLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Teste de status</span>
+            </button>
+            {testComplete && (
+              <button onClick={startStatusTest} className="flex items-center gap-1 text-gray-600 text-sm">
+                <RefreshCw className="w-4 h-4" />
+                <span>Tentar novamente</span>
+              </button>
+            )}
+          </div>
+
+          {/* Progress Circle */}
+          <div className="flex-1 flex flex-col items-center px-6 py-8">
+            <div className="relative w-48 h-48 mb-8">
+              {/* Background circle */}
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="8"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  stroke="#22c55e"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={`${(testProgress / 6) * 283} 283`}
+                  className="transition-all duration-500"
+                />
+              </svg>
+              {/* Center content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                {testComplete ? (
+                  <>
+                    <span className="text-3xl font-bold text-[#22c55e]">Perfeito</span>
+                    <span className="text-sm text-gray-500">O melhor status!</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-4xl font-bold text-gray-900">{testProgress}/6</span>
+                    <span className="text-sm text-gray-500">Testando</span>
+                  </>
+                )}
+              </div>
+              {/* Toggle switch decoration */}
+              <div className="absolute -right-2 top-1/2 -translate-y-1/2">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 bg-white rounded-full shadow" />
+                </div>
+              </div>
+            </div>
+
+            {/* Test Items List */}
+            <div className="w-full bg-white rounded-xl overflow-hidden">
+              {testComplete && (
+                <button className="flex items-center justify-between w-full px-4 py-3 border-b border-gray-100">
+                  <span className="font-bold text-gray-900">Testes aprovados</span>
+                  <ChevronUp className="w-5 h-5 text-gray-400" />
+                </button>
+              )}
+              {testItems.map((item, index) => (
+                <div key={index} className="flex items-center justify-between px-4 py-4 border-b border-gray-50 last:border-0">
+                  <span className={`text-base ${item.status === "done" ? "font-medium text-gray-900" : "text-gray-500"}`}>
+                    {item.label}
+                  </span>
+                  {item.status === "loading" ? (
+                    <RefreshCw className="w-5 h-5 text-gray-400 animate-spin" />
+                  ) : item.status === "done" ? (
+                    <div className="w-6 h-6 rounded-full bg-[#22c55e] flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-full border-2 border-gray-300" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Profile Edit Page */}
       <div className={`absolute top-0 left-0 h-full w-full bg-gray-50 z-50 transition-transform duration-300 ease-out ${profileOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex flex-col h-full">
@@ -1108,7 +1313,7 @@ export default function HomePage() {
           <div className="flex items-center px-4 bg-white" style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)', paddingBottom: '16px' }}>
             <button onClick={() => setProfileOpen(false)} className="flex items-center gap-2 text-gray-800">
               <ChevronLeft className="w-6 h-6" />
-              <span className="text-lg font-medium">Meu Perfil</span>
+              <span className="text-lg font-medium">Horas Dirigidas</span>
             </button>
           </div>
 
