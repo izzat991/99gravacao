@@ -91,9 +91,21 @@ function SettingsItem({ icon, label, value, badge }: {
   )
 }
 
-function generateRandomRide(vehicleType: "moto" | "carro"): RideRequest {
-  const minPrice = vehicleType === "moto" ? 5 : 13
-  const maxPrice = vehicleType === "moto" ? 20 : 45
+function generateRandomRide(vehicleType: "moto" | "carro" | "bike", maxPriceLimit?: number): RideRequest {
+  let minPrice: number
+  let maxPrice: number
+  
+  if (vehicleType === "bike") {
+    minPrice = 4
+    maxPrice = maxPriceLimit || 8
+  } else if (vehicleType === "carro") {
+    minPrice = 13
+    maxPrice = maxPriceLimit || 45
+  } else {
+    minPrice = 5
+    maxPrice = maxPriceLimit || 20
+  }
+  
   const price = Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice
   const pricePerKm = (Math.random() * 1.5 + 1).toFixed(2)
   
@@ -238,7 +250,9 @@ export default function HomePage() {
     if (connectionState === "searching" && !currentRide) {
       searchTimerRef.current = setTimeout(() => {
         const vehicleType = vehicles[0]?.type || "moto"
-        const ride = generateRandomRide(vehicleType)
+        // Se for bike com entregaFood ativa, limitar preço a R$ 8,00
+        const maxPriceLimit = vehicleType === "bike" && solicitacaoToggles.entregaFood ? 8 : undefined
+        const ride = generateRandomRide(vehicleType, maxPriceLimit)
         setCurrentRide(ride)
         setRideCountdown(100)
         // Trigger slide-in animation
@@ -264,7 +278,7 @@ export default function HomePage() {
         }
       }
     }
-  }, [connectionState, currentRide, vehicles])
+  }, [connectionState, currentRide, vehicles, solicitacaoToggles])
 
   // Stop sound when ride is dismissed
   useEffect(() => {
