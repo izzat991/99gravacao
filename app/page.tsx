@@ -6,7 +6,7 @@ import Image from "next/image"
 
 interface Vehicle {
   id: string
-  type: "moto" | "carro"
+  type: "moto" | "carro" | "bike"
   placa: string
   nome: string
   cor: string
@@ -154,7 +154,7 @@ export default function HomePage() {
     { label: "Configurações da solicitação", status: "pending" as "pending" | "loading" | "done" },
   ])
   const [newVehicle, setNewVehicle] = useState({
-    type: "moto" as "moto" | "carro",
+    type: "moto" as "moto" | "carro" | "bike",
     placa: "",
     nome: "",
     cor: ""
@@ -367,7 +367,7 @@ export default function HomePage() {
     const updated = [...vehicles, vehicle]
     setVehicles(updated)
     localStorage.setItem("vehicles", JSON.stringify(updated))
-    setNewVehicle({ type: "moto", placa: "", nome: "", cor: "" })
+    setNewVehicle({ type: "moto" as "moto" | "carro" | "bike", placa: "", nome: "", cor: "" })
     setAddVehicleOpen(false)
   }
 
@@ -474,7 +474,7 @@ export default function HomePage() {
 
   // Get active vehicle type for menu display
   const activeVehicle = vehicles[0]
-  const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : "Rota 99 Moto"
+  const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : activeVehicle?.type === "bike" ? "Rota 99 Bike" : "Rota 99 Moto"
 
   return (
     <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col">
@@ -867,8 +867,8 @@ export default function HomePage() {
                     </div>
                     <div className="w-24 h-20 flex items-center justify-center">
                       <Image
-                        src={vehicle.type === "moto" ? "/images/icon-moto.png" : "/images/icon-car.png"}
-                        alt={vehicle.type === "moto" ? "Moto" : "Carro"}
+                    src={vehicle.type === "moto" ? "/images/icon-moto.png" : vehicle.type === "bike" ? "/images/icon-bike.png" : "/images/icon-car.png"}
+                    alt={vehicle.type === "moto" ? "Moto" : vehicle.type === "bike" ? "Bike" : "Carro"}
                         width={96}
                         height={80}
                         style={{ width: "auto", height: "100%" }}
@@ -937,6 +937,16 @@ export default function HomePage() {
                 }`}
               >
                 Carro
+              </button>
+              <button
+                onClick={() => setNewVehicle({ ...newVehicle, type: "bike" })}
+                className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
+                  newVehicle.type === "bike" 
+                    ? "bg-[#292444] text-white" 
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                Bike
               </button>
             </div>
 
@@ -1246,40 +1256,46 @@ export default function HomePage() {
               <p className="text-sm text-gray-500 mb-4">Selecione quais tipos de solicitação você quer receber</p>
               
               <div className="bg-white rounded-xl overflow-hidden mb-6">
-                {/* Moto */}
-                <button 
-                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, moto: !prev.moto }))}
-                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
-                >
-                  <span className="text-base text-gray-900">Moto</span>
-                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.moto ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.moto ? 'right-1' : 'left-1'}`} />
-                  </div>
-                </button>
+                {/* Moto - só aparece se não for bike */}
+                {activeVehicle?.type !== "bike" && (
+                  <button 
+                    onClick={() => setSolicitacaoToggles(prev => ({ ...prev, moto: !prev.moto }))}
+                    className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                  >
+                    <span className="text-base text-gray-900">Moto</span>
+                    <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.moto ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.moto ? 'right-1' : 'left-1'}`} />
+                    </div>
+                  </button>
+                )}
 
-                {/* Entrega Moto */}
-                <button 
-                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaMoto: !prev.entregaMoto }))}
-                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
-                >
-                  <span className="text-base text-gray-900">Entrega Moto</span>
-                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaMoto ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaMoto ? 'right-1' : 'left-1'}`} />
-                  </div>
-                </button>
+                {/* Entrega Moto - só aparece se não for bike */}
+                {activeVehicle?.type !== "bike" && (
+                  <button 
+                    onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaMoto: !prev.entregaMoto }))}
+                    className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                  >
+                    <span className="text-base text-gray-900">Entrega Moto</span>
+                    <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaMoto ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaMoto ? 'right-1' : 'left-1'}`} />
+                    </div>
+                  </button>
+                )}
 
-                {/* Entrega Moto Empresas */}
-                <button 
-                  onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaMotoEmpresas: !prev.entregaMotoEmpresas }))}
-                  className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
-                >
-                  <span className="text-base text-gray-900">Entrega Moto Empresas</span>
-                  <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaMotoEmpresas ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
-                    <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaMotoEmpresas ? 'right-1' : 'left-1'}`} />
-                  </div>
-                </button>
+                {/* Entrega Moto Empresas - só aparece se não for bike */}
+                {activeVehicle?.type !== "bike" && (
+                  <button 
+                    onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaMotoEmpresas: !prev.entregaMotoEmpresas }))}
+                    className="flex items-center justify-between w-full px-4 py-4 border-b border-gray-100"
+                  >
+                    <span className="text-base text-gray-900">Entrega Moto Empresas</span>
+                    <div className={`w-12 h-7 rounded-full relative transition-colors ${solicitacaoToggles.entregaMotoEmpresas ? 'bg-[#1a1a1a]' : 'bg-gray-200'}`}>
+                      <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${solicitacaoToggles.entregaMotoEmpresas ? 'right-1' : 'left-1'}`} />
+                    </div>
+                  </button>
+                )}
 
-                {/* Entrega Food */}
+                {/* Entrega Food - sempre aparece */}
                 <button 
                   onClick={() => setSolicitacaoToggles(prev => ({ ...prev, entregaFood: !prev.entregaFood }))}
                   className="flex items-center justify-between w-full px-4 py-4"
