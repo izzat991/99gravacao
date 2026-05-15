@@ -170,3 +170,47 @@
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* Remove v0 badge completely */
+[data-vercel-badge],
+[data-badge],
+a[href*="v0.dev"],
+a[href*="vercel.com"][target="_blank"][rel="noopener"],
+div[class*="built-with"],
+div[class*="vercel-badge"],
+div[class*="v0-badge"],
+button[aria-label*="v0"],
+div:has(> a[href*="v0.dev"]),
+div:has(> span:contains("Built with")),
+[class*="Badge"],
+[class*="badge"]:has(a[href*="v0"]),
+body > div:last-child:has(a[href*="v0"]),
+body > div[style*="position: fixed"][style*="bottom"],
+body > div[style*="position: fixed"][style*="right"]:has(a),
+#__next ~ div:has(a[href*="v0"]),
+main ~ div:has(a[href*="v0"]),
+div[style*="z-index"]:has(a[href*="v0"]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
+/* Force hide any fixed positioned element in bottom right corner that might be the badge */
+body > div:not(#app-container):not(#__next):not([id]) {
+  &[style*="fixed"] {
+    display: none !important;
+  }
+}
+
+/* Hide elements containing "Built with" text */
+*:has(> *:contains("Built with v0")),
+*:has(> *:contains("Built with V0")) {
+  display: none !important;
+}
