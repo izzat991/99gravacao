@@ -125,11 +125,8 @@ export function TokenGate({ appCode, children }: TokenGateProps) {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        Verificando acesso...
-      </div>
-    );
+    // Retorna null para permitir que a splash screen do app seja exibida
+    return null;
   }
 
   if (authorized) {
@@ -137,16 +134,20 @@ export function TokenGate({ appCode, children }: TokenGateProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-[#ffe323]">
       <form
         onSubmit={handleSubmit}
-        className="bg-slate-800 p-6 rounded-xl w-full max-w-sm space-y-4"
+        className="bg-white p-6 rounded-2xl w-full max-w-sm space-y-4 mx-4 shadow-lg"
       >
-        <h1 className="text-white text-xl font-bold text-center">
-          Acesso diário
+        <div className="flex justify-center mb-2">
+          <span className="text-[60px] font-black text-[#1a1a1a] tracking-tight">99</span>
+        </div>
+
+        <h1 className="text-[#1a1a1a] text-xl font-bold text-center">
+          Acesso ao App
         </h1>
 
-        <p className="text-slate-300 text-sm text-center">
+        <p className="text-gray-500 text-sm text-center">
           Digite seu token para acessar.
         </p>
 
@@ -155,11 +156,11 @@ export function TokenGate({ appCode, children }: TokenGateProps) {
           value={tokenInput}
           onChange={(e) => setTokenInput(e.target.value)}
           placeholder="Ex: ADMINPEDRO1"
-          className="w-full px-3 py-2 rounded-md bg-slate-700 text-white outline-none"
+          className="w-full px-4 py-3 rounded-xl bg-gray-100 text-[#1a1a1a] outline-none border-2 border-transparent focus:border-[#ffe323] transition-colors"
         />
 
         {error && (
-          <p className="text-red-400 text-sm">
+          <p className="text-red-500 text-sm text-center">
             {error}
           </p>
         )}
@@ -167,7 +168,7 @@ export function TokenGate({ appCode, children }: TokenGateProps) {
         <button
           type="submit"
           disabled={submitting || !tokenInput}
-          className="w-full py-2 rounded-md font-semibold bg-emerald-500 disabled:opacity-60"
+          className="w-full py-3 rounded-xl font-semibold bg-[#1a1a1a] text-white disabled:opacity-60 transition-opacity"
         >
           {submitting ? 'Validando...' : 'Entrar'}
         </button>
