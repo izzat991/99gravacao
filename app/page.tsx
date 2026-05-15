@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
 import Image from "next/image"
+import { TokenGate } from "@/components/TokenGate"
 
 interface Vehicle {
   id: string
@@ -491,6 +492,7 @@ export default function HomePage() {
   const routeLabel = activeVehicle?.type === "carro" ? "Rota 99 Carro" : activeVehicle?.type === "bike" ? "Rota 99 Bike" : "Rota 99 Moto"
 
   return (
+    <TokenGate appCode="9P">
     <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col">
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
@@ -1630,6 +1632,7 @@ export default function HomePage() {
 
 
     </div>
+    </TokenGate>
   )
 }
 
