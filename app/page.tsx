@@ -570,13 +570,14 @@ export default function HomePage() {
         </button>
       )}
 
-      {/* Demand zones follow the map; the blue marker stays fixed on screen. */}
+      {/* Only the map moves when dragged. */}
       <div className="absolute inset-0">
         <DriverMap location={FIXED_MAP_LOCATION} onReady={() => {}} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[1]">
-          <div className="w-9 h-9 rounded-full border-2 border-[#2789ff] bg-white flex items-center justify-center shadow-sm" aria-label="Localização fixa em Fortaleza">
-            <Navigation className="w-5 h-5 text-[#2789ff] fill-[#2789ff]" strokeWidth={1.5} />
-          </div>
+      </div>
+      {/* Screen-fixed marker, outside the map's canvas and drag transforms. */}
+      <div className="absolute left-1/2 top-1/2 z-[21] -translate-x-1/2 -translate-y-1/2 pointer-events-none" aria-label={FIXED_MAP_LOCATION.address}>
+        <div className="w-9 h-9 rounded-full border-2 border-[#2789ff] bg-white flex items-center justify-center shadow-[0_1px_5px_rgba(0,0,0,0.2)]">
+          <Navigation className="w-5 h-5 text-[#2789ff] fill-[#2789ff]" strokeWidth={1.5} />
         </div>
       </div>
 

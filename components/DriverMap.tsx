@@ -170,25 +170,25 @@ function addDemandLayers(map: MapLibreMap) {
 }
 
 const fillColors: Record<string, string> = {
-  park: "#c2ebd5",
-  water: "#adddf0",
-  landuse_residential: "#f0efed",
-  landcover_wood: "#ccead7",
-  building: "#e9e7e5",
+  park: "#ecf7f1",
+  water: "#e8f5fa",
+  landuse_residential: "#ffffff",
+  landcover_wood: "#eff8f2",
+  building: "#f3f3f2",
 }
 const lineColors: Record<string, string> = {
-  waterway: "#9fd5ea",
+  waterway: "#d7ecf5",
   highway_minor: "#ffffff",
-  highway_major_casing: "#e9d89b",
-  highway_major_inner: "#fff0bd",
-  highway_major_subtle: "#fff2c9",
-  highway_motorway_casing: "#e7c56b",
-  highway_motorway_inner: "#ffdc80",
-  highway_motorway_subtle: "#ffe7a5",
-  highway_motorway_bridge_casing: "#e7c56b",
-  highway_motorway_bridge_inner: "#ffdc80",
-  tunnel_motorway_casing: "#e7d6a2",
-  tunnel_motorway_inner: "#ffedb4",
+  highway_major_casing: "#eceae4",
+  highway_major_inner: "#ffffff",
+  highway_major_subtle: "#ffffff",
+  highway_motorway_casing: "#e9e4d9",
+  highway_motorway_inner: "#fffdf7",
+  highway_motorway_subtle: "#fffdf9",
+  highway_motorway_bridge_casing: "#e9e4d9",
+  highway_motorway_bridge_inner: "#fffdf7",
+  tunnel_motorway_casing: "#e9e4d9",
+  tunnel_motorway_inner: "#fffdf7",
 }
 
 function styleDriverMap(_previous: StyleSpecification | undefined, style: StyleSpecification): StyleSpecification {
@@ -196,7 +196,7 @@ function styleDriverMap(_previous: StyleSpecification | undefined, style: StyleS
     ...style,
     layers: style.layers.map((layer) => {
       if (layer.type === "background") {
-        return { ...layer, paint: { ...layer.paint, "background-color": "#f5f4f3" } }
+        return { ...layer, paint: { ...layer.paint, "background-color": "#ffffff" } }
       }
       if (layer.type === "fill" && fillColors[layer.id]) {
         return { ...layer, paint: { ...layer.paint, "fill-color": fillColors[layer.id] } }
@@ -264,7 +264,7 @@ export function DriverMap({ location, onReady }: DriverMapProps) {
   }, [useRasterMap])
 
   return (
-    <div className="absolute inset-0 isolate overflow-hidden bg-[#f5f4f3]">
+    <div className="absolute inset-0 isolate overflow-hidden bg-white">
       {useRasterMap ? (
         <RasterDriverMap location={location} onReady={onReady} />
       ) : (
@@ -338,7 +338,7 @@ function RasterDriverMap({ location, onReady }: DriverMapProps) {
   }
 
   return (
-    <div ref={containerRef} className="absolute inset-0 overflow-hidden bg-[#e9edf0] touch-none"
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden bg-white touch-none"
       onPointerDown={(event) => {
         pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
         event.currentTarget.setPointerCapture(event.pointerId)
@@ -368,7 +368,7 @@ function RasterDriverMap({ location, onReady }: DriverMapProps) {
       onWheel={(event) => { event.preventDefault(); zoomBy(event.deltaY < 0 ? 1 : -1) }}
       onDoubleClick={(event) => { event.preventDefault(); zoomBy(1) }}
     >
-      {geometry?.tiles.map((tile) => <img key={`${view.zoom}-${tile.x}-${tile.y}`} src={`https://tile.openstreetmap.org/${view.zoom}/${tile.x}/${tile.y}.png`} alt="" draggable={false} onLoad={onReady} onError={onReady} className="pointer-events-none absolute h-64 w-64 select-none" style={{ left: tile.left, top: tile.top }} />)}
+      {geometry?.tiles.map((tile) => <img key={`${view.zoom}-${tile.x}-${tile.y}`} src={`https://tile.openstreetmap.org/${view.zoom}/${tile.x}/${tile.y}.png`} alt="" draggable={false} onLoad={onReady} onError={onReady} className="pointer-events-none absolute h-64 w-64 select-none" style={{ left: tile.left, top: tile.top, filter: "saturate(0.55) brightness(1.12) contrast(0.92)" }} />)}
       {geometry && zones.length > 0 && (
         <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full">
           {zones.map(({ outline, center, color, multiplier }) => {
