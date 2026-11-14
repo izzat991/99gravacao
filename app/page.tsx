@@ -69,6 +69,13 @@ const neighborhoods = [
   "Parquelândia"
 ]
 
+// Fixed pickup location: R. Gen. Clarindo de Queiroz, 47 - Centro, Fortaleza - CE
+const FIXED_MAP_LOCATION = {
+  latitude: -3.7346418,
+  longitude: -38.5248878,
+  address: "R. Gen. Clarindo de Queiroz, 47 - Centro, Fortaleza - CE, 60035-130",
+}
+
 function SettingsItem({ icon, label, value, badge }: { 
   icon: React.ReactNode
   label: string
@@ -556,13 +563,14 @@ export default function HomePage() {
       {/* Map Container */}
       <div className="absolute inset-0">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15934.744238583984!2d-38.5286794!3d-3.7319444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7c74857e4e4b3f9%3A0x8f8f8f8f8f8f8f8f!2sFortaleza%2C%20CE!5e0!3m2!1spt-BR!2sbr!4v1699999999999!5m2!1spt-BR!2sbr"
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=-38.537%2C-3.742%2C-38.512%2C-3.727&layer=mapnik&marker=${FIXED_MAP_LOCATION.latitude}%2C${FIXED_MAP_LOCATION.longitude}`}
           width="100%"
           height="100%"
           style={{ border: 0 }}
+          title={`Mapa de ${FIXED_MAP_LOCATION.address}`}
           allowFullScreen
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+          referrerPolicy="no-referrer"
           className="w-full h-full"
         />
 
