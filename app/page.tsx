@@ -85,17 +85,6 @@ function MapControl({ label, icon }: { label: string; icon: React.ReactNode }) {
   )
 }
 
-function DiscountCoin() {
-  return (
-    <svg viewBox="0 0 64 64" className="w-[60px] h-[60px]" aria-hidden="true">
-      <path d="M32 3 38 6 44 5 48 10 54 12 55 18 60 23 58 29 61 35 57 41 56 47 50 50 46 56 40 56 34 61 28 58 22 60 17 55 11 52 10 46 5 41 7 35 3 29 7 23 8 17 14 13 18 8 24 8Z" fill="#d4a900" />
-      <circle cx="32" cy="31" r="22" fill="#f3cb00" stroke="#be9500" strokeWidth="1.5" strokeDasharray="3 3" />
-      <circle cx="32" cy="31" r="17" fill="#ffdf14" />
-      <path d="M22 41 42 21M25 26a2.8 2.8 0 1 0 0 .1M39 37a2.8 2.8 0 1 0 0 .1" fill="none" stroke="#241b00" strokeWidth="4" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function SettingsItem({ icon, label, value, badge }: { 
   icon: React.ReactNode
   label: string
@@ -520,7 +509,7 @@ export default function HomePage() {
 
   return (
     <TokenGate appCode="9P">
-    <div className="relative w-full max-w-[430px] h-[100dvh] max-h-[100dvh] mx-auto overflow-hidden bg-[#f5f0e8] flex-none flex flex-col">
+    <div className="relative w-full max-w-[430px] h-[100dvh] max-h-[100dvh] mx-auto overflow-hidden bg-[#f5f0e8] flex-none flex flex-col" style={{ "--bottom-panel-height": showBanner ? "clamp(195px, 28dvh, 255px)" : "84px" } as React.CSSProperties}>
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
         ref={audioRef} 
@@ -533,9 +522,9 @@ export default function HomePage() {
       {/* Splash Screen with fadeout */}
       {showSplash && (
         <div 
-          className={`absolute inset-0 z-[100] bg-[#ffe323] flex items-center justify-center transition-opacity duration-500 ${splashFading ? 'opacity-0' : 'opacity-100'}`}
+          className={`absolute inset-0 z-[100] overflow-hidden bg-[#ffb52d] transition-opacity duration-[600ms] ease-in-out ${splashFading ? 'opacity-0' : 'opacity-100'}`}
         >
-          <span className="text-[120px] font-black text-[#1a1a1a] tracking-tight">99</span>
+          <Image src="/images/splash-screen.png" alt="99 Motorista" fill priority sizes="100vw" className="object-cover" />
         </div>
       )}
 
@@ -588,20 +577,18 @@ export default function HomePage() {
 
       {!currentRide && (
         <div className="absolute inset-0 z-10 pointer-events-none">
-          <div className="absolute right-5 top-[29%] flex flex-col gap-1.5 items-center">
+          <div className="absolute right-5 flex flex-col gap-1.5 items-center" style={{ bottom: "calc(var(--bottom-panel-height) + 82px)" }}>
             <MapControl label="Usuários" icon={<UsersRound className="w-5 h-5" strokeWidth={2.8} />} />
             <MapControl label="Centralizar mapa" icon={<Crosshair className="w-[23px] h-[23px]" strokeWidth={2.5} />} />
-          </div>
-          <div className="absolute right-5 top-[42%]">
             <MapControl label="Alertas" icon={<TriangleAlert className="w-5 h-5 text-[#222] fill-[#ffdd28]" strokeWidth={2.5} />} />
           </div>
-          <div className="absolute left-4 bottom-[57%] bg-white rounded-full shadow-sm px-3 py-1.5 flex items-center gap-1 text-[13px] font-bold text-[#252525]">
+          <div className="absolute left-4 bg-white rounded-full shadow-sm px-3 py-1.5 flex items-center gap-1 text-[13px] font-bold text-[#252525]" style={{ bottom: "calc(var(--bottom-panel-height) + 140px)" }}>
             <Zap className="w-4 h-4 fill-[#252525]" /> 1,1X-1,3X
           </div>
-          <div className="absolute right-5 bottom-[44%]">
+          <div className="absolute right-5" style={{ bottom: "calc(var(--bottom-panel-height) + 10px)" }}>
             <MapControl label="Camadas do mapa" icon={<Layers2 className="w-6 h-6" strokeWidth={2.4} />} />
           </div>
-          <div className="absolute left-4 right-20 bottom-[44%] min-h-[52px] rounded-[19px] bg-white shadow-sm flex items-center px-3 gap-2 text-[#3189ed] text-[14px] leading-[17px]">
+          <div className="absolute left-4 right-20 min-h-[52px] rounded-[19px] bg-white shadow-sm flex items-center px-3 gap-2 text-[#3189ed] text-[14px] leading-[17px]" style={{ bottom: "calc(var(--bottom-panel-height) + 10px)" }}>
             <ShieldCheck className="w-7 h-7 flex-none fill-[#3189ed] text-white" strokeWidth={2} />
             <span className="max-w-[230px]">Olá! A segurança da 99 está com você</span>
             <ChevronRight className="w-4 h-4 flex-none ml-auto" />
@@ -694,23 +681,19 @@ export default function HomePage() {
 
       {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 h-[28dvh] min-h-[195px] max-h-[255px] bg-white rounded-t-[28px] pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-2px_12px_rgba(0,0,0,0.04)] flex flex-col">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-[28px] pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-2px_12px_rgba(0,0,0,0.04)] flex flex-col" style={{ height: "var(--bottom-panel-height)" }}>
           <div className="w-11 h-1 bg-[#b9b9b9] rounded-full mx-auto mb-5 flex-none" />
           {/* Promotional Banner */}
           {showBanner && (
-            <div className="mx-3 relative mb-4 rounded-[22px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] h-[13dvh] max-h-[118px] min-h-[90px] px-4 py-4 flex-none flex items-center">
+            <div className="mx-3 relative mb-4 rounded-[18px] overflow-hidden bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] h-[13dvh] max-h-[118px] min-h-[90px] flex-none">
+              <Image src="/images/banner-99moto.png" alt="99 Moto - Ganhe mais sem parar no ponto" fill sizes="(max-width: 430px) 100vw, 400px" className="object-cover" priority />
               <button
                 onClick={() => setShowBanner(false)}
-                className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center z-10"
+                className="absolute top-2 right-2 w-6 h-6 bg-white/85 rounded-full flex items-center justify-center z-10"
                 aria-label="Fechar promoção"
               >
-                <X className="w-3.5 h-3.5 text-gray-500" />
+                <X className="w-4 h-4 text-gray-600" />
               </button>
-              <div className="pr-[84px] max-w-[300px]">
-                <p className="text-[15px] leading-[18px] font-bold text-[#373737]">Expirado. Renove para ganhar mais!</p>
-                <span className="inline-block mt-2 bg-[#f6f6f6] rounded-xl px-4 py-1 text-[13px] font-bold text-[#252525]">Renovar</span>
-              </div>
-              <div className="absolute right-6 bottom-4 rotate-[-12deg]"><DiscountCoin /></div>
             </div>
           )}
 
