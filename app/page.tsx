@@ -1,7 +1,7 @@
 "use client"
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useRef, useCallback } from "react"
-import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3, Menu, UsersRound, Crosshair, Layers2, TriangleAlert, SlidersHorizontal, ClipboardCheck, ShieldCheck, Zap, Percent, Navigation } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3, Menu, UsersRound, Crosshair, Layers2, TriangleAlert, SlidersHorizontal, ClipboardCheck, ShieldCheck, Zap, Percent } from "lucide-react"
 import Image from "next/image"
 import { TokenGate } from "@/components/TokenGate"
 import { DriverMap } from "@/components/DriverMap"
@@ -79,9 +79,20 @@ const FIXED_MAP_LOCATION = {
 
 function MapControl({ label, icon }: { label: string; icon: React.ReactNode }) {
   return (
-    <div aria-label={label} className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-[#252525]">
+    <div aria-label={label} className="w-[42px] h-[42px] rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.12)] flex items-center justify-center text-[#252525]">
       {icon}
     </div>
+  )
+}
+
+function DiscountCoin() {
+  return (
+    <svg viewBox="0 0 64 64" className="w-[60px] h-[60px]" aria-hidden="true">
+      <path d="M32 3 38 6 44 5 48 10 54 12 55 18 60 23 58 29 61 35 57 41 56 47 50 50 46 56 40 56 34 61 28 58 22 60 17 55 11 52 10 46 5 41 7 35 3 29 7 23 8 17 14 13 18 8 24 8Z" fill="#d4a900" />
+      <circle cx="32" cy="31" r="22" fill="#f3cb00" stroke="#be9500" strokeWidth="1.5" strokeDasharray="3 3" />
+      <circle cx="32" cy="31" r="17" fill="#ffdf14" />
+      <path d="M22 41 42 21M25 26a2.8 2.8 0 1 0 0 .1M39 37a2.8 2.8 0 1 0 0 .1" fill="none" stroke="#241b00" strokeWidth="4" strokeLinecap="round" />
+    </svg>
   )
 }
 
@@ -534,7 +545,7 @@ export default function HomePage() {
           {/* Menu Button - Top Left */}
           <button 
             onClick={() => setMenuOpen(true)}
-            className="absolute left-4 top-2 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
+            className="absolute left-4 top-2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.15)]"
             aria-label="Abrir menu"
           >
             {/* Red dot indicator - Right side */}
@@ -544,16 +555,16 @@ export default function HomePage() {
           </button>
 
           {/* Balance - Centered */}
-          <button className="flex items-center gap-1.5 bg-[#06182b] text-white px-5 h-11 rounded-full text-[18px] font-bold shadow-md">
+          <button className="flex items-center gap-1.5 bg-[#06182b] text-white px-5 h-[52px] rounded-full text-[19px] font-bold shadow-md">
             R$0,00
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
-          <div className="absolute right-3 top-0 w-9 h-9 rounded-full bg-white/85 shadow-sm flex items-center justify-center text-gray-500" aria-label="Usuários">
+          <div className="absolute right-4 top-0 w-10 h-10 rounded-full bg-white/85 shadow-sm flex items-center justify-center text-gray-500" aria-label="Usuários">
             <UsersRound className="w-5 h-5" strokeWidth={2.8} />
           </div>
-          <div className="absolute top-[58px] left-1/2 -translate-x-1/2 h-7 px-2 rounded-full bg-[#ffe323] shadow-md flex items-center gap-1 whitespace-nowrap text-[12px] font-semibold text-[#202020]">
+          <div className="absolute top-[72px] left-1/2 -translate-x-1/2 h-7 px-2 rounded-full bg-[#ffe323] shadow-md flex items-center gap-1 whitespace-nowrap text-[12px] font-semibold text-[#202020]">
             <span className="rounded-full bg-[#ff592d] text-white w-4 h-4 flex items-center justify-center"><Percent className="w-3 h-3" /></span>
             <span>0% de Taxa</span><span className="ml-2">Ativo</span><ChevronRight className="w-3.5 h-3.5 text-[#f57b00]" />
           </div>
@@ -570,33 +581,29 @@ export default function HomePage() {
         </button>
       )}
 
-      {/* Only the map moves when dragged. */}
+      {/* The marker belongs to the address inside the map. */}
       <div className="absolute inset-0">
         <DriverMap location={FIXED_MAP_LOCATION} onReady={() => {}} />
-      </div>
-      {/* Screen-fixed marker, outside the map's canvas and drag transforms. */}
-      <div className="fixed left-1/2 top-[50dvh] z-[21] -translate-x-1/2 -translate-y-1/2 pointer-events-none" aria-label={FIXED_MAP_LOCATION.address}>
-        <div className="w-9 h-9 rounded-full border-2 border-[#2789ff] bg-white flex items-center justify-center shadow-[0_1px_5px_rgba(0,0,0,0.2)]">
-          <Navigation className="w-5 h-5 text-[#2789ff] fill-[#2789ff]" strokeWidth={1.5} />
-        </div>
       </div>
 
       {!currentRide && (
         <div className="absolute inset-0 z-10 pointer-events-none">
-          <div className="absolute right-3 top-[29%] flex flex-col gap-3 items-center">
+          <div className="absolute right-5 top-[29%] flex flex-col gap-1.5 items-center">
             <MapControl label="Usuários" icon={<UsersRound className="w-5 h-5" strokeWidth={2.8} />} />
-            <MapControl label="Centralizar mapa" icon={<Crosshair className="w-6 h-6" strokeWidth={2.5} />} />
+            <MapControl label="Centralizar mapa" icon={<Crosshair className="w-[23px] h-[23px]" strokeWidth={2.5} />} />
+          </div>
+          <div className="absolute right-5 top-[42%]">
             <MapControl label="Alertas" icon={<TriangleAlert className="w-5 h-5 text-[#222] fill-[#ffdd28]" strokeWidth={2.5} />} />
           </div>
-          <div className="absolute left-4 bottom-[min(55%,390px)] bg-white rounded-full shadow-sm px-3 py-1.5 flex items-center gap-1 text-[13px] font-bold text-[#252525]">
+          <div className="absolute left-4 bottom-[57%] bg-white rounded-full shadow-sm px-3 py-1.5 flex items-center gap-1 text-[13px] font-bold text-[#252525]">
             <Zap className="w-4 h-4 fill-[#252525]" /> 1,1X-1,3X
           </div>
-          <div className="absolute right-3 bottom-[min(42%,300px)]">
+          <div className="absolute right-5 bottom-[44%]">
             <MapControl label="Camadas do mapa" icon={<Layers2 className="w-6 h-6" strokeWidth={2.4} />} />
           </div>
-          <div className="absolute left-4 right-14 bottom-[min(42%,300px)] h-11 rounded-full bg-white shadow-sm flex items-center px-3 gap-2 text-[#3189ed] text-[13px] leading-tight">
-            <ShieldCheck className="w-6 h-6 flex-none fill-[#3189ed] text-white" strokeWidth={2} />
-            <span>Olá! A segurança da 99 está com você</span>
+          <div className="absolute left-4 right-20 bottom-[44%] min-h-[52px] rounded-[19px] bg-white shadow-sm flex items-center px-3 gap-2 text-[#3189ed] text-[14px] leading-[17px]">
+            <ShieldCheck className="w-7 h-7 flex-none fill-[#3189ed] text-white" strokeWidth={2} />
+            <span className="max-w-[230px]">Olá! A segurança da 99 está com você</span>
             <ChevronRight className="w-4 h-4 flex-none ml-auto" />
           </div>
         </div>
@@ -687,28 +694,28 @@ export default function HomePage() {
 
       {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-[28px] pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-2px_12px_rgba(0,0,0,0.04)]">
-          <div className="w-11 h-1 bg-[#b9b9b9] rounded-full mx-auto mb-2" />
+        <div className="absolute bottom-0 left-0 right-0 z-20 h-[28dvh] min-h-[195px] max-h-[255px] bg-white rounded-t-[28px] pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-2px_12px_rgba(0,0,0,0.04)] flex flex-col">
+          <div className="w-11 h-1 bg-[#b9b9b9] rounded-full mx-auto mb-5 flex-none" />
           {/* Promotional Banner */}
           {showBanner && (
-            <div className="mx-3 relative mb-3 rounded-[22px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] min-h-[104px] px-4 py-4 flex items-center">
+            <div className="mx-3 relative mb-4 rounded-[22px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] h-[13dvh] max-h-[118px] min-h-[90px] px-4 py-4 flex-none flex items-center">
               <button
                 onClick={() => setShowBanner(false)}
-                className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center z-10"
+                className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center z-10"
                 aria-label="Fechar promoção"
               >
-                <X className="w-4 h-4 text-gray-600" />
+                <X className="w-3.5 h-3.5 text-gray-500" />
               </button>
-              <div className="pr-20">
-                <p className="text-[14px] leading-[17px] font-bold text-[#373737]">Expirado. Renove para ganhar mais!</p>
+              <div className="pr-[84px] max-w-[300px]">
+                <p className="text-[15px] leading-[18px] font-bold text-[#373737]">Expirado. Renove para ganhar mais!</p>
                 <span className="inline-block mt-2 bg-[#f6f6f6] rounded-xl px-4 py-1 text-[13px] font-bold text-[#252525]">Renovar</span>
               </div>
-              <div className="absolute right-7 bottom-5 w-12 h-12 rounded-full bg-[#e8c900] flex items-center justify-center rotate-[-15deg] shadow-sm" aria-hidden="true"><Percent className="w-7 h-7 text-[#211900]" strokeWidth={3} /></div>
+              <div className="absolute right-6 bottom-4 rotate-[-12deg]"><DiscountCoin /></div>
             </div>
           )}
 
           {/* Bottom Navigation Bar */}
-          <div className="px-4 py-1 flex items-center justify-between gap-2">
+          <div className="px-4 py-1 flex items-center justify-between gap-2 mt-auto">
             {/* Settings Icon */}
             <button onClick={() => setPreferencesOpen(true)} className="w-11 h-12 flex-none flex items-center justify-center relative" aria-label="Preferências">
               <SlidersHorizontal className="w-7 h-7 text-[#373737]" strokeWidth={2.6} />
@@ -728,7 +735,7 @@ export default function HomePage() {
             ) : connectionState === "searching" ? (
               <button 
                 onClick={handleConnect}
-                className="flex-1 relative overflow-hidden bg-transparent text-[#1a1a1a] font-bold text-xl py-3 rounded-[20px]"
+                className="w-[60%] max-w-[255px] h-[min(8dvh,68px)] flex-none relative overflow-hidden bg-transparent text-[#1a1a1a] font-bold text-xl rounded-[24px]"
               >
                 <div className="absolute inset-0 overflow-hidden rounded-full">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#ffe323]/70 to-transparent animate-shimmer-wave" />
@@ -738,7 +745,7 @@ export default function HomePage() {
             ) : (
               <button 
                 onClick={handleConnect}
-                className="flex-1 bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-[24px] py-3 rounded-[20px] transition-colors shadow-sm"
+                className="w-[60%] max-w-[255px] h-[min(8dvh,68px)] flex-none bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-[24px] rounded-[24px] transition-colors shadow-sm"
               >
                 Conectar
               </button>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import type { GeoJSONSource, Map as MapLibreMap, StyleSpecification } from "maplibre-gl"
+import type { GeoJSONSource, Map as MapLibreMap, Marker, StyleSpecification } from "maplibre-gl"
 import "maplibre-gl/dist/maplibre-gl.css"
 
 type Location = { latitude: number; longitude: number }
@@ -10,6 +10,7 @@ type DriverMapProps = { location: Location; onReady: () => void }
 
 const tileSize = 256
 const baseMapStyle = "https://tiles.openfreemap.org/styles/positron"
+const markerMarkup = '<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="18" cy="18" r="17" fill="white" stroke="#2789ff" stroke-width="2"/><path d="M18 8 25 26 18 22 11 26Z" fill="#2789ff"/></svg>'
 const demandSource = "simulated-demand"
 const demandZoom = 13
 const demandLabelZoom = 14
@@ -212,6 +213,7 @@ function styleDriverMap(_previous: StyleSpecification | undefined, style: StyleS
 export function DriverMap({ location, onReady }: DriverMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
+  const markerRef = useRef<Marker | null>(null)
   const [useRasterMap, setUseRasterMap] = useState(false)
   const reportReady = onReady
 
@@ -223,7 +225,7 @@ export function DriverMap({ location, onReady }: DriverMapProps) {
 
     async function initialize() {
       try {
-        const { Map } = await import("maplibre-gl")
+        const { Map, Marker } = await import("maplibre-gl")
         if (disposed) return
 
         const map = new Map({
@@ -239,6 +241,14 @@ export function DriverMap({ location, onReady }: DriverMapProps) {
         })
         mapRef.current = map
         map.touchZoomRotate.disableRotation()
+
+        const markerElement = document.createElement("div")
+        markerElement.innerHTML = markerMarkup
+        markerElement.style.cssText = "width:36px;height:36px;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,.2))"
+        markerElement.setAttribute("aria-label", "R. Gen. Clarindo de Queiroz, 47 - Centro, Fortaleza")
+        markerRef.current = new Marker({ element: markerElement, anchor: "center" })
+          .setLngLat([location.longitude, location.latitude])
+          .addTo(map)
 
         map.once("load", () => {
           window.clearTimeout(fallbackTimer)
@@ -258,7 +268,9 @@ export function DriverMap({ location, onReady }: DriverMapProps) {
     return () => {
       disposed = true
       window.clearTimeout(fallbackTimer)
+      markerRef.current?.remove()
       mapRef.current?.remove()
+      markerRef.current = null
       mapRef.current = null
     }
   }, [useRasterMap])
@@ -321,8 +333,9 @@ function RasterDriverMap({ location, onReady }: DriverMapProps) {
         tiles.push({ x: ((x % limit) + limit) % limit, y, left: x * tileSize - left, top: y * tileSize - top })
       }
     }
-    return { tiles, left, top }
-  }, [view, size])
+    const marker = project(location, view.zoom)
+    return { tiles, left, top, markerLeft: marker.x - left, markerTop: marker.y - top }
+  }, [view, size, location])
 
   const left = geometry?.left
   const top = geometry?.top
@@ -391,6 +404,7 @@ function RasterDriverMap({ location, onReady }: DriverMapProps) {
           })}
         </svg>
       )}
+      {geometry && <div aria-label="R. Gen. Clarindo de Queiroz, 47 - Centro, Fortaleza" className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 drop-shadow-sm" style={{ left: geometry.markerLeft, top: geometry.markerTop }} dangerouslySetInnerHTML={{ __html: markerMarkup }} />}
     </div>
   )
 }
