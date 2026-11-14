@@ -251,12 +251,15 @@ export function DriverMap({ location, onReady }: DriverMapProps) {
           .addTo(map)
 
         map.once("load", () => {
-          window.clearTimeout(fallbackTimer)
           addDemandLayers(map)
           updateVisibleDemand(map)
           map.on("moveend", () => updateVisibleDemand(map))
+          map.once("idle", () => {
+            if (disposed) return
+            window.clearTimeout(fallbackTimer)
+            reportReady()
+          })
         })
-        map.on("idle", () => reportReady())
         map.setStyle(baseMapStyle, { transformStyle: styleDriverMap })
       } catch {
         if (!disposed) setUseRasterMap(true)
@@ -334,7 +337,12 @@ function RasterDriverMap({ location, onReady }: DriverMapProps) {
       }
     }
     const marker = project(location, view.zoom)
-    return { tiles, left, top, markerLeft: marker.x - left, markerTop: marker.y - top }
+    return {
+      tiles, left, top,
+      centerTileX: ((Math.floor(center.x / tileSize) % limit) + limit) % limit,
+      centerTileY: Math.floor(center.y / tileSize),
+      markerLeft: marker.x - left, markerTop: marker.y - top,
+    }
   }, [view, size, location])
 
   const left = geometry?.left
@@ -381,7 +389,7 @@ function RasterDriverMap({ location, onReady }: DriverMapProps) {
       onWheel={(event) => { event.preventDefault(); zoomBy(event.deltaY < 0 ? 1 : -1) }}
       onDoubleClick={(event) => { event.preventDefault(); zoomBy(1) }}
     >
-      {geometry?.tiles.map((tile) => <img key={`${view.zoom}-${tile.x}-${tile.y}`} src={`https://tile.openstreetmap.org/${view.zoom}/${tile.x}/${tile.y}.png`} alt="" draggable={false} onLoad={onReady} onError={onReady} className="pointer-events-none absolute h-64 w-64 select-none" style={{ left: tile.left, top: tile.top, filter: "saturate(0.55) brightness(1.12) contrast(0.92)" }} />)}
+      {geometry?.tiles.map((tile) => <img key={`${view.zoom}-${tile.x}-${tile.y}`} src={`https://tile.openstreetmap.org/${view.zoom}/${tile.x}/${tile.y}.png`} alt="" draggable={false} onLoad={tile.x === geometry.centerTileX && tile.y === geometry.centerTileY ? onReady : undefined} className="pointer-events-none absolute h-64 w-64 select-none" style={{ left: tile.left, top: tile.top, filter: "saturate(0.55) brightness(1.12) contrast(0.92)" }} />)}
       {geometry && zones.length > 0 && (
         <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full">
           {zones.map(({ outline, center, color, multiplier }) => {

@@ -147,6 +147,7 @@ function generateRandomRide(vehicleType: "moto" | "carro" | "bike", maxPriceLimi
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true)
   const [splashFading, setSplashFading] = useState(false)
+  const [mapReady, setMapReady] = useState(false)
   const [showBanner, setShowBanner] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [vehicleOpen, setVehicleOpen] = useState(false)
@@ -201,19 +202,15 @@ export default function HomePage() {
   const countdownRef = useRef<NodeJS.Timeout | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Splash screen timer with fadeout
+  const handleMapReady = useCallback(() => setMapReady(true), [])
+
+  // Reveal the app only after the map reports its base tiles are ready.
   useEffect(() => {
-    const fadeTimer = setTimeout(() => {
-      setSplashFading(true)
-    }, 2000)
-    const hideTimer = setTimeout(() => {
-      setShowSplash(false)
-    }, 2500)
-    return () => {
-      clearTimeout(fadeTimer)
-      clearTimeout(hideTimer)
-    }
-  }, [])
+    if (!mapReady) return
+    setSplashFading(true)
+    const hideTimer = setTimeout(() => setShowSplash(false), 600)
+    return () => clearTimeout(hideTimer)
+  }, [mapReady])
 
   // Unlock audio on first user interaction (required for iOS)
   // This only loads the audio, doesn't play any sound
@@ -572,7 +569,7 @@ export default function HomePage() {
 
       {/* The marker belongs to the address inside the map. */}
       <div className="absolute inset-0">
-        <DriverMap location={FIXED_MAP_LOCATION} onReady={() => {}} />
+        <DriverMap location={FIXED_MAP_LOCATION} onReady={handleMapReady} />
       </div>
 
       {!currentRide && (
