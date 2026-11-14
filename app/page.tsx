@@ -509,7 +509,7 @@ export default function HomePage() {
 
   return (
     <TokenGate appCode="9P">
-    <div className="relative w-full max-w-[430px] mx-auto overflow-hidden bg-[#f5f0e8] flex-1 flex flex-col">
+    <div className="relative w-full max-w-[430px] h-[100dvh] max-h-[100dvh] mx-auto overflow-hidden bg-[#f5f0e8] flex-none flex flex-col">
       {/* Audio element for ride notification - playsInline for iOS */}
       <audio 
         ref={audioRef} 
@@ -575,7 +575,7 @@ export default function HomePage() {
         <DriverMap location={FIXED_MAP_LOCATION} onReady={() => {}} />
       </div>
       {/* Screen-fixed marker, outside the map's canvas and drag transforms. */}
-      <div className="absolute left-1/2 top-1/2 z-[21] -translate-x-1/2 -translate-y-1/2 pointer-events-none" aria-label={FIXED_MAP_LOCATION.address}>
+      <div className="fixed left-1/2 top-[50dvh] z-[21] -translate-x-1/2 -translate-y-1/2 pointer-events-none" aria-label={FIXED_MAP_LOCATION.address}>
         <div className="w-9 h-9 rounded-full border-2 border-[#2789ff] bg-white flex items-center justify-center shadow-[0_1px_5px_rgba(0,0,0,0.2)]">
           <Navigation className="w-5 h-5 text-[#2789ff] fill-[#2789ff]" strokeWidth={1.5} />
         </div>
