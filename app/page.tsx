@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3, Menu, UsersRound, Crosshair, Layers2, TriangleAlert, SlidersHorizontal, ClipboardCheck, ShieldCheck, Zap, Percent, Navigation } from "lucide-react"
 import Image from "next/image"
 import { TokenGate } from "@/components/TokenGate"
+import { DriverMap } from "@/components/DriverMap"
 
 interface Vehicle {
   id: string
@@ -569,57 +570,10 @@ export default function HomePage() {
         </button>
       )}
 
-      {/* Map Container */}
+      {/* Demand zones follow the map; the blue marker stays fixed on screen. */}
       <div className="absolute inset-0">
-        <iframe
-          src={`https://www.openstreetmap.org/export/embed.html?bbox=-38.537%2C-3.742%2C-38.512%2C-3.727&layer=mapnik&marker=${FIXED_MAP_LOCATION.latitude}%2C${FIXED_MAP_LOCATION.longitude}`}
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          title={`Mapa de ${FIXED_MAP_LOCATION.address}`}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="w-full h-full"
-        />
-
-        {/* Yellow Hexagon Overlay - 7 hexagons at top of page */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <svg className="w-full h-full" viewBox="0 0 430 932" preserveAspectRatio="xMidYMid slice">
-            {/* Hexagon 1 - Left top */}
-            <polygon points="30,60 90,20 150,60 150,140 90,180 30,140" fill="rgba(255,227,80,0.55)" />
-            
-            {/* Hexagon 2 - Center top - adjacent to 1 */}
-            <polygon points="150,60 210,20 270,60 270,140 210,180 150,140" fill="rgba(255,210,50,0.5)" />
-            
-            {/* Hexagon 3 - Right top - adjacent to 2 */}
-            <polygon points="270,60 330,20 390,60 390,140 330,180 270,140" fill="rgba(255,227,80,0.45)" />
-            
-            {/* Hexagon 4 - Left middle - below 1 */}
-            <polygon points="90,180 150,140 210,180 210,260 150,300 90,260" fill="rgba(255,200,40,0.5)" />
-            
-            {/* Hexagon 5 - Center - adjacent to 4 */}
-            <polygon points="210,180 270,140 330,180 330,260 270,300 210,260" fill="rgba(255,227,80,0.6)" />
-            
-            {/* Hexagon 6 - Left bottom - below 4 */}
-            <polygon points="30,300 90,260 150,300 150,380 90,420 30,380" fill="rgba(255,210,50,0.55)" />
-            
-            {/* Hexagon 7 - Center bottom - adjacent to 6 */}
-            <polygon points="150,300 210,260 270,300 270,380 210,420 150,380" fill="rgba(255,227,80,0.5)" />
-            
-            {/* Hexagon 8 - Far right top - darker yellow */}
-            <polygon points="390,60 450,20 510,60 510,140 450,180 390,140" fill="rgba(218,165,32,0.55)" />
-            
-            {/* Hexagon 9 - Far right middle - darker yellow */}
-            <polygon points="330,180 390,140 450,180 450,260 390,300 330,260" fill="rgba(218,165,32,0.5)" />
-            
-            {/* Hexagon 10 - Far left - darker yellow */}
-            <polygon points="-30,180 30,140 90,180 90,260 30,300 -30,260" fill="rgba(218,165,32,0.5)" />
-          </svg>
-        </div>
-
-        {/* Fixed location marker */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: "-40px" }}>
+        <DriverMap location={FIXED_MAP_LOCATION} onReady={() => {}} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[1]">
           <div className="w-9 h-9 rounded-full border-2 border-[#2789ff] bg-white flex items-center justify-center shadow-sm" aria-label="Localização fixa em Fortaleza">
             <Navigation className="w-5 h-5 text-[#2789ff] fill-[#2789ff]" strokeWidth={1.5} />
           </div>
