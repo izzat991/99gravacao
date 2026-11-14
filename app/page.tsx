@@ -1,7 +1,7 @@
 "use client"
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useRef, useCallback } from "react"
-import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3 } from "lucide-react"
+import { X, ChevronLeft, ChevronRight, Star, Check, Camera, Loader2, Settings, Phone, Mail, MapPin, Lock, FileText, Monitor, Target, RefreshCw, ChevronUp, BarChart3, Menu, UsersRound, Crosshair, Layers2, TriangleAlert, SlidersHorizontal, ClipboardCheck, ShieldCheck, Zap, Percent, Navigation } from "lucide-react"
 import Image from "next/image"
 import { TokenGate } from "@/components/TokenGate"
 
@@ -74,6 +74,14 @@ const FIXED_MAP_LOCATION = {
   latitude: -3.7346418,
   longitude: -38.5248878,
   address: "R. Gen. Clarindo de Queiroz, 47 - Centro, Fortaleza - CE, 60035-130",
+}
+
+function MapControl({ label, icon }: { label: string; icon: React.ReactNode }) {
+  return (
+    <div aria-label={label} className="w-11 h-11 rounded-full bg-white shadow-md flex items-center justify-center text-[#252525]">
+      {icon}
+    </div>
+  )
 }
 
 function SettingsItem({ icon, label, value, badge }: { 
@@ -521,32 +529,33 @@ export default function HomePage() {
 
       {/* Header - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-4 pt-3">
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-start justify-center px-4 pt-2">
           {/* Menu Button - Top Left */}
           <button 
             onClick={() => setMenuOpen(true)}
-            className="absolute left-4 top-3 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
+            className="absolute left-4 top-2 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-md"
+            aria-label="Abrir menu"
           >
             {/* Red dot indicator - Right side */}
             <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full" />
             {/* Menu Icon */}
-            <Image
-              src="/images/icon-menu.png"
-              alt="Menu"
-              width={20}
-              height={20}
-              className="w-5 h-5"
-              loading="eager"
-            />
+            <Menu className="w-[22px] h-[22px] text-[#202020]" strokeWidth={3} />
           </button>
 
           {/* Balance - Centered */}
-          <button className="flex items-center gap-1.5 bg-[#292444] text-white px-6 py-3 rounded-full text-[17px] font-medium">
+          <button className="flex items-center gap-1.5 bg-[#06182b] text-white px-5 h-11 rounded-full text-[18px] font-bold shadow-md">
             R$0,00
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="6 9 12 15 18 9" />
             </svg>
           </button>
+          <div className="absolute right-3 top-0 w-9 h-9 rounded-full bg-white/85 shadow-sm flex items-center justify-center text-gray-500" aria-label="Usuários">
+            <UsersRound className="w-5 h-5" strokeWidth={2.8} />
+          </div>
+          <div className="absolute top-[58px] left-1/2 -translate-x-1/2 h-7 px-2 rounded-full bg-[#ffe323] shadow-md flex items-center gap-1 whitespace-nowrap text-[12px] font-semibold text-[#202020]">
+            <span className="rounded-full bg-[#ff592d] text-white w-4 h-4 flex items-center justify-center"><Percent className="w-3 h-3" /></span>
+            <span>0% de Taxa</span><span className="ml-2">Ativo</span><ChevronRight className="w-3.5 h-3.5 text-[#f57b00]" />
+          </div>
         </div>
       )}
 
@@ -609,19 +618,34 @@ export default function HomePage() {
           </svg>
         </div>
 
-        {/* Center Location Button */}
+        {/* Fixed location marker */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ marginTop: "-40px" }}>
-          <Image
-            src="/images/icon-arrow.png"
-            alt="Localização"
-            width={56}
-            height={56}
-            className="w-14 h-14"
-            loading="eager"
-            priority
-          />
+          <div className="w-9 h-9 rounded-full border-2 border-[#2789ff] bg-white flex items-center justify-center shadow-sm" aria-label="Localização fixa em Fortaleza">
+            <Navigation className="w-5 h-5 text-[#2789ff] fill-[#2789ff]" strokeWidth={1.5} />
+          </div>
         </div>
       </div>
+
+      {!currentRide && (
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          <div className="absolute right-3 top-[29%] flex flex-col gap-3 items-center">
+            <MapControl label="Usuários" icon={<UsersRound className="w-5 h-5" strokeWidth={2.8} />} />
+            <MapControl label="Centralizar mapa" icon={<Crosshair className="w-6 h-6" strokeWidth={2.5} />} />
+            <MapControl label="Alertas" icon={<TriangleAlert className="w-5 h-5 text-[#222] fill-[#ffdd28]" strokeWidth={2.5} />} />
+          </div>
+          <div className="absolute left-4 bottom-[min(55%,390px)] bg-white rounded-full shadow-sm px-3 py-1.5 flex items-center gap-1 text-[13px] font-bold text-[#252525]">
+            <Zap className="w-4 h-4 fill-[#252525]" /> 1,1X-1,3X
+          </div>
+          <div className="absolute right-3 bottom-[min(42%,300px)]">
+            <MapControl label="Camadas do mapa" icon={<Layers2 className="w-6 h-6" strokeWidth={2.4} />} />
+          </div>
+          <div className="absolute left-4 right-14 bottom-[min(42%,300px)] h-11 rounded-full bg-white shadow-sm flex items-center px-3 gap-2 text-[#3189ed] text-[13px] leading-tight">
+            <ShieldCheck className="w-6 h-6 flex-none fill-[#3189ed] text-white" strokeWidth={2} />
+            <span>Olá! A segurança da 99 está com você</span>
+            <ChevronRight className="w-4 h-4 flex-none ml-auto" />
+          </div>
+        </div>
+      )}
 
       {/* Ride Request Card */}
       {currentRide && (
@@ -708,47 +732,37 @@ export default function HomePage() {
 
       {/* Bottom Section - White background covering both banner and nav - Hide when ride is showing */}
       {!currentRide && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-3xl pt-4">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-[28px] pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-2px_12px_rgba(0,0,0,0.04)]">
+          <div className="w-11 h-1 bg-[#b9b9b9] rounded-full mx-auto mb-2" />
           {/* Promotional Banner */}
           {showBanner && (
-            <div className="mx-3 relative mb-3">
+            <div className="mx-3 relative mb-3 rounded-[22px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] min-h-[104px] px-4 py-4 flex items-center">
               <button
                 onClick={() => setShowBanner(false)}
-                className="absolute top-2 right-2 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center z-10"
+                className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center z-10"
+                aria-label="Fechar promoção"
               >
                 <X className="w-4 h-4 text-gray-600" />
               </button>
-              <div className="rounded-xl overflow-hidden">
-                <Image
-                  src="/images/banner-99moto.png"
-                  alt="99 Moto - Ganhe mais sem parar no ponto"
-                  width={400}
-                  height={120}
-                  className="w-full h-auto"
-                  loading="eager"
-                  priority
-                />
+              <div className="pr-20">
+                <p className="text-[14px] leading-[17px] font-bold text-[#373737]">Expirado. Renove para ganhar mais!</p>
+                <span className="inline-block mt-2 bg-[#f6f6f6] rounded-xl px-4 py-1 text-[13px] font-bold text-[#252525]">Renovar</span>
               </div>
+              <div className="absolute right-7 bottom-5 w-12 h-12 rounded-full bg-[#e8c900] flex items-center justify-center rotate-[-15deg] shadow-sm" aria-hidden="true"><Percent className="w-7 h-7 text-[#211900]" strokeWidth={3} /></div>
             </div>
           )}
 
           {/* Bottom Navigation Bar */}
-          <div className="px-4 py-2 flex items-center justify-center gap-1">
+          <div className="px-4 py-1 flex items-center justify-between gap-2">
             {/* Settings Icon */}
-            <button onClick={() => setPreferencesOpen(true)} className="w-10 h-10 flex items-center justify-center">
-              <Image
-                src="/images/icon-settings.png"
-                alt="Configurações"
-                width={28}
-                height={28}
-                className="w-7 h-7"
-                loading="eager"
-              />
+            <button onClick={() => setPreferencesOpen(true)} className="w-11 h-12 flex-none flex items-center justify-center relative" aria-label="Preferências">
+              <SlidersHorizontal className="w-7 h-7 text-[#373737]" strokeWidth={2.6} />
+              <span className="absolute top-1 right-0 w-2 h-2 bg-[#f63363] rounded-full" />
             </button>
 
             {/* Connect/Loading/Searching Button */}
             {connectionState === "loading" ? (
-              <div className="mx-1 min-w-[180px] bg-white text-gray-600 font-bold text-lg py-4 rounded-full flex flex-col items-center justify-center">
+              <div className="flex-1 bg-white text-gray-600 font-bold text-lg py-3 rounded-[20px] flex flex-col items-center justify-center">
                 <span>Carregando...</span>
                 <div className="flex gap-1.5 mt-1">
                   <div className="w-2.5 h-2.5 bg-[#ffe323] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
@@ -759,7 +773,7 @@ export default function HomePage() {
             ) : connectionState === "searching" ? (
               <button 
                 onClick={handleConnect}
-                className="mx-1 min-w-[180px] relative overflow-hidden bg-transparent text-[#1a1a1a] font-bold text-xl py-4 rounded-full"
+                className="flex-1 relative overflow-hidden bg-transparent text-[#1a1a1a] font-bold text-xl py-3 rounded-[20px]"
               >
                 <div className="absolute inset-0 overflow-hidden rounded-full">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#ffe323]/70 to-transparent animate-shimmer-wave" />
@@ -769,21 +783,15 @@ export default function HomePage() {
             ) : (
               <button 
                 onClick={handleConnect}
-                className="mx-1 min-w-[180px] bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-xl py-4 rounded-full transition-colors shadow-sm"
+                className="flex-1 bg-[#ffe323] hover:bg-[#f5d800] text-[#1a1a1a] font-bold text-[24px] py-3 rounded-[20px] transition-colors shadow-sm"
               >
                 Conectar
               </button>
             )}
 
             {/* Message Icon */}
-            <button className="w-10 h-10 flex items-center justify-center">
-              <Image
-                src="/images/icon-msg.png"
-                alt="Mensagens"
-                width={28}
-                height={28}
-                className="w-7 h-7"
-              />
+            <button className="w-11 h-12 flex-none flex items-center justify-center" aria-label="Solicitações">
+              <ClipboardCheck className="w-7 h-7 text-[#373737]" strokeWidth={2.4} />
             </button>
           </div>
         </div>
